@@ -53,17 +53,32 @@ const Shot = (() => {
   // The frame a video is showing right now (falls back to its cover picture).
   function videoFrame(video) {
     if (!video || video.readyState < 2 || !video.videoWidth) return null;
+    // Before a video plays, X shows its cover picture, and the first frame is often blank.
+    if (video.poster && video.paused && video.currentTime === 0) return null;
     try {
       const c = document.createElement('canvas');
       c.width = video.videoWidth;
       c.height = video.videoHeight;
       const x = c.getContext('2d');
       x.drawImage(video, 0, 0);
-      x.getImageData(0, 0, 1, 1); // throws if the browser won't let us read it
-      return c;
+      return flat(x, c.width, c.height) ? null : c; // getImageData throws if the browser won't let us read it
     } catch {
       return null;
     }
+  }
+  // True when a frame is one plain colour (a blank frame between scenes, say).
+  function flat(ctx, w, h) {
+    const s = document.createElement('canvas').getContext('2d', { willReadFrequently: true });
+    s.canvas.width = s.canvas.height = 8;
+    s.drawImage(ctx.canvas, 0, 0, w, h, 0, 0, 8, 8);
+    const d = s.getImageData(0, 0, 8, 8).data;
+    let lo = 255;
+    let hi = 0;
+    for (let i = 0; i < d.length; i += 4) for (let k = 0; k < 3; k++) {
+      lo = Math.min(lo, d[i + k]);
+      hi = Math.max(hi, d[i + k]);
+    }
+    return hi - lo < 6;
   }
 
   async function getMedia(list) {
