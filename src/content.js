@@ -394,7 +394,12 @@
     });
     lib.addEventListener('mouseenter', hideSub);
 
-    root.append(shotRow, save, el('div', 'bb-sep'), lib);
+    // What Bowerbird keeps, shown before every screenshot or save (the store's disclosure rule).
+    const note = el('div', 'bb-note', 'Saved posts and screenshots stay on this computer. Bowerbird sends nothing anywhere.');
+    note.id = 'bb-note';
+    root.setAttribute('aria-describedby', note.id);
+
+    root.append(shotRow, save, el('div', 'bb-sep'), lib, el('div', 'bb-sep'), note);
     return { root, pills: [...pills.children], save, lib };
   }
 
@@ -634,6 +639,10 @@
       return { size, gap, rowGap, inflow: contentRight(slot.previousElementSibling) > left - 6 };
     });
     if (idle) document.documentElement.style.setProperty('--bb-idle', idle);
+    // Rust for the icon when open or saved: darker on X's light theme, lighter on dim and dark (both at least 3:1).
+    const light = pageTheme() === 'light';
+    document.documentElement.style.setProperty('--bb-on', light ? 'rgb(177, 68, 32)' : 'rgb(224, 112, 63)');
+    document.documentElement.style.setProperty('--bb-on-bg', light ? 'rgba(177, 68, 32, 0.1)' : 'rgba(224, 112, 63, 0.14)');
     slots.forEach((slot, i) => {
       const { size, gap, rowGap, inflow } = looks[i];
       if (size) slot.style.setProperty('--bb-size', size + 'px');

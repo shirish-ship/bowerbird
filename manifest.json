@@ -26,7 +26,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://x.com/*", "https://twitter.com/*"],
+      "matches": ["https://x.com/*"],
       "js": ["src/store.js", "src/post.js", "src/shot.js", "src/content.js"],
       "css": ["src/content.css"],
       "run_at": "document_idle"

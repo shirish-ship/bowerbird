@@ -34,9 +34,9 @@ Folders
 • Export everything to a file, and import it again on another computer.
 
 Private by design
-• Everything stays in your browser on your computer. No account, no ads, no analytics, no tracking.
+• Everything stays in your browser on your computer. A saved post keeps its link, author name and @handle, text, picture links and date. No account, no ads, no analytics, no tracking.
 • There is no server and no remote code. Pictures load from X's image server only to show them.
-• It runs only on x.com and twitter.com, and reads only what you click.
+• It runs only on x.com, and reads only the post you click.
 
 Keyboard friendly
 • Tab to the button, then use the arrow keys, Enter and Esc to move through the menus.

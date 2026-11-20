@@ -38,19 +38,21 @@
   border-radius: 9999px;
   transition: background-color 0.2s;
 }
+/* Bowerbird's own rust, not X's blue, so the icon is clearly the extension's and never a blue bird on X.
+   content.js sets a lighter rust for X's dim and dark themes. */
 .bb-btn:hover,
 .bb-btn:focus-visible,
 .bb-btn.is-open,
 .bb-btn.is-saved {
-  color: rgb(29, 155, 240);
+  color: var(--bb-on, rgb(177, 68, 32));
 }
 .bb-btn:hover::before,
 .bb-btn:focus-visible::before,
 .bb-btn.is-open::before {
-  background-color: rgba(29, 155, 240, 0.1);
+  background-color: var(--bb-on-bg, rgba(177, 68, 32, 0.1));
 }
 .bb-btn:focus-visible::before {
-  box-shadow: 0 0 0 2px rgb(29, 155, 240);
+  box-shadow: 0 0 0 2px var(--bb-on, rgb(177, 68, 32));
 }
 .bb-btn > span {
   position: relative;
@@ -183,6 +185,13 @@
   height: 1px;
   margin: 6px 0;
   background: var(--line);
+}
+.bb-note {
+  padding: 4px 16px 8px;
+  color: var(--sub);
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 16px;
 }
 
 /* folder list */

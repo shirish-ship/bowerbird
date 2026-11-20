@@ -79,6 +79,7 @@ You do steps 1 and 2 yourself: Google needs your account, your payment and your 
 2. Open the Developer Dashboard: https://chrome.google.com/webstore/devconsole
 3. Accept the developer agreement and pay the one-time registration fee. The page shows the amount.
 4. In **Account**, set a publisher name and verify your contact email.
+5. In **Account**, declare whether you are a **trader** (the EU asks every publisher). A free extension made as a personal project is usually **non-trader**. A trader must show a legal name, address and phone number on the listing.
 
 ### 2. Build the zip
 
