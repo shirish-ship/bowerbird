@@ -1,4 +1,4 @@
-// Postfold's background worker. It only opens Postfold's own page (from the toolbar button, or from
+// Bowerbird's background worker. It only opens Bowerbird's own page (from the toolbar button, or from
 // "Open saved posts" in the menu on x.com). It makes no network requests.
 
 chrome.action.onClicked.addListener(() => chrome.runtime.openOptionsPage());

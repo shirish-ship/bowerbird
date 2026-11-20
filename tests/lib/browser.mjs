@@ -27,7 +27,7 @@ export const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 // Starts the browser with a throwaway profile. Returns a connected CDP client.
 export async function launch({ extension, args = [], port = 9300 + Math.floor(Math.random() * 500), width = 1280, height = 900 } = {}) {
-  const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'postfold-profile-'));
+  const profile = fs.mkdtempSync(path.join(os.tmpdir(), 'bowerbird-profile-'));
   const flags = [
     '--headless=new',
     `--remote-debugging-port=${port}`,
@@ -82,11 +82,14 @@ export async function extensionWorker(cdp, name, ms = 9000) {
   while (Date.now() < end) {
     const workers = (await cdp.send('Target.getTargets')).targetInfos.filter((t) => t.type === 'service_worker' && t.url.startsWith('chrome-extension://') && !checked.has(t.targetId));
     for (const t of workers) {
-      checked.add(t.targetId);
-      const { sessionId } = await cdp.send('Target.attachToTarget', { targetId: t.targetId, flatten: true });
-      await cdp.send('Runtime.enable', {}, sessionId);
-      if ((await cdp.eval(sessionId, 'chrome.runtime.getManifest().name').catch(() => '')) === name) return { ...t, sessionId, id: new URL(t.url).host };
-      await cdp.send('Target.detachFromTarget', { sessionId });
+      const { sessionId } = await cdp.send('Target.attachToTarget', { targetId: t.targetId, flatten: true }).catch(() => ({}));
+      if (!sessionId) continue;
+      await cdp.send('Runtime.enable', {}, sessionId).catch(() => {});
+      const found = await cdp.eval(sessionId, 'chrome.runtime.getManifest().name').catch(() => '');
+      if (found === name) return { ...t, sessionId, id: new URL(t.url).host };
+      // Skip this worker from now on only once its name is known; one still starting up gets another look.
+      if (found) checked.add(t.targetId);
+      await cdp.send('Target.detachFromTarget', { sessionId }).catch(() => {});
     }
     await sleep(150);
   }

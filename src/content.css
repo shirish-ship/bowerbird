@@ -1,77 +1,77 @@
-/* Postfold on x.com. Made to look like X's own menus. Every class starts with pf- so it never clashes with X. */
+/* Bowerbird on x.com. Made to look like X's own menus. Every class starts with bb- so it never clashes with X. */
 
 /* ---------- the icon in each post's action bar ---------- */
 /* The icon takes up no room in X's row: a negative left margin cancels its width, so X's buttons
    stay exactly where X puts them and the icon sits in the empty space just left of Bookmark. */
-.pf-slot {
+.bb-slot {
   position: relative;
   z-index: 1;
   display: flex;
   align-items: center;
   flex: 0 0 auto;
-  margin-left: calc(-1 * (var(--pf-size, 18.75px) + var(--pf-gap, 12px)));
+  margin-left: calc(-1 * (var(--bb-size, 18.75px) + var(--bb-gap, 12px)));
   /* X's row also puts its own small gap between items; together they make the same gap X uses. */
-  margin-right: calc(var(--pf-gap, 12px) - var(--pf-rowgap, 0px));
+  margin-right: calc(var(--bb-gap, 12px) - var(--bb-rowgap, 0px));
 }
 /* Not enough empty space there (narrow window, long counts): take real room instead of covering a number. */
-.pf-slot.pf-inflow {
+.bb-slot.bb-inflow {
   margin-left: 0;
 }
 /* Two classes deep, so a site rule like "nav button { all: unset }" can never resize the icon. */
-.pf-slot > .pf-btn {
+.bb-slot > .bb-btn {
   all: unset;
   box-sizing: border-box;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  width: var(--pf-size, 18.75px);
-  height: var(--pf-size, 18.75px);
-  color: var(--pf-idle, rgb(113, 118, 123));
+  width: var(--bb-size, 18.75px);
+  height: var(--bb-size, 18.75px);
+  color: var(--bb-idle, rgb(113, 118, 123));
   cursor: pointer;
   transition: color 0.2s;
 }
-.pf-btn::before {
+.bb-btn::before {
   content: "";
   position: absolute;
   inset: -8px;
   border-radius: 9999px;
   transition: background-color 0.2s;
 }
-.pf-btn:hover,
-.pf-btn:focus-visible,
-.pf-btn.is-open,
-.pf-btn.is-saved {
+.bb-btn:hover,
+.bb-btn:focus-visible,
+.bb-btn.is-open,
+.bb-btn.is-saved {
   color: rgb(29, 155, 240);
 }
-.pf-btn:hover::before,
-.pf-btn:focus-visible::before,
-.pf-btn.is-open::before {
+.bb-btn:hover::before,
+.bb-btn:focus-visible::before,
+.bb-btn.is-open::before {
   background-color: rgba(29, 155, 240, 0.1);
 }
-.pf-btn:focus-visible::before {
+.bb-btn:focus-visible::before {
   box-shadow: 0 0 0 2px rgb(29, 155, 240);
 }
-.pf-btn > span {
+.bb-btn > span {
   position: relative;
   display: flex;
   width: 100%;
   height: 100%;
 }
-.pf-slot > .pf-btn svg {
+.bb-slot > .bb-btn svg {
   width: 100%;
   height: 100%;
 }
-.pf-btn .pf-on,
-.pf-btn.is-saved .pf-off {
+.bb-btn .bb-on,
+.bb-btn.is-saved .bb-off {
   display: none;
 }
-.pf-btn.is-saved .pf-on {
+.bb-btn.is-saved .bb-on {
   display: flex;
 }
 
 /* ---------- menu ---------- */
-.pf-menu {
+.bb-menu {
   --bg: #fff;
   --fg: #0f1419;
   --sub: #536471;
@@ -92,9 +92,9 @@
   box-shadow: var(--shadow);
   font: 700 15px/20px TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   text-align: left;
-  animation: pf-in 0.12s ease-out;
+  animation: bb-in 0.12s ease-out;
 }
-.pf-menu[data-theme="dark"] {
+.bb-menu[data-theme="dark"] {
   --bg: #000;
   --fg: #e7e9ea;
   --sub: #71767b;
@@ -103,7 +103,7 @@
   --edge: rgba(255, 255, 255, 0.22);
   --shadow: rgba(255, 255, 255, 0.2) 0 0 15px, rgba(255, 255, 255, 0.15) 0 0 3px 1px;
 }
-.pf-menu[data-theme="dim"] {
+.bb-menu[data-theme="dim"] {
   --bg: #15202b;
   --fg: #f7f9f9;
   --sub: #8b98a5;
@@ -112,19 +112,19 @@
   --edge: rgba(255, 255, 255, 0.2);
   --shadow: rgba(136, 153, 166, 0.2) 0 0 15px, rgba(136, 153, 166, 0.15) 0 0 3px 1px;
 }
-@keyframes pf-in {
+@keyframes bb-in {
   from {
     opacity: 0;
     transform: translateY(-4px);
   }
 }
-.pf-sub {
+.bb-sub {
   width: 280px;
   padding-top: 8px;
   animation: none;
 }
 
-.pf-item {
+.bb-item {
   all: unset;
   box-sizing: border-box;
   display: flex;
@@ -135,34 +135,34 @@
   color: var(--fg);
   cursor: pointer;
 }
-.pf-item:hover,
-.pf-item.is-active {
+.bb-item:hover,
+.bb-item.is-active {
   background: var(--hover);
 }
-.pf-item:focus-visible {
+.bb-item:focus-visible {
   background: var(--hover);
   box-shadow: inset 0 0 0 2px var(--accent);
 }
-.pf-ic {
+.bb-ic {
   display: flex;
   flex: none;
   width: 18.75px;
   height: 18.75px;
 }
-.pf-ic svg,
-.pf-chev svg,
-.pf-check svg {
+.bb-ic svg,
+.bb-chev svg,
+.bb-check svg {
   width: 100%;
   height: 100%;
 }
-.pf-label {
+.bb-label {
   flex: 1;
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.pf-hint {
+.bb-hint {
   max-width: 100px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -171,7 +171,7 @@
   font-size: 13px;
   font-weight: 400;
 }
-.pf-chev {
+.bb-chev {
   display: flex;
   flex: none;
   width: 16px;
@@ -179,49 +179,49 @@
   margin-right: -4px;
   color: var(--sub);
 }
-.pf-sep {
+.bb-sep {
   height: 1px;
   margin: 6px 0;
   background: var(--line);
 }
 
 /* folder list */
-.pf-folders {
+.bb-folders {
   position: relative;
   max-height: 280px;
   overflow-y: auto;
   scrollbar-width: thin;
 }
-.pf-check {
+.bb-check {
   display: flex;
   flex: none;
   width: 18px;
   height: 18px;
   color: var(--accent);
 }
-.pf-opt[aria-selected="true"] .pf-label {
+.bb-opt[aria-selected="true"] .bb-label {
   color: var(--accent);
 }
-.pf-empty {
+.bb-empty {
   padding: 10px 16px;
   color: var(--sub);
   font-weight: 400;
 }
-.pf-cap {
+.bb-cap {
   padding: 10px 16px 4px;
   color: var(--sub);
   font-size: 13px;
   line-height: 16px;
 }
-.pf-create .pf-check {
+.bb-create .bb-check {
   color: var(--sub);
 }
-.pf-create .pf-label {
+.bb-create .bb-label {
   font-weight: 400;
 }
 
 /* search box */
-.pf-field {
+.bb-field {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -233,18 +233,18 @@
   box-shadow: inset 0 0 0 1px transparent;
   cursor: text;
 }
-.pf-field:focus-within {
+.bb-field:focus-within {
   background: transparent;
   box-shadow: inset 0 0 0 2px var(--accent);
 }
-.pf-field .pf-ic {
+.bb-field .bb-ic {
   width: 16px;
   height: 16px;
 }
-.pf-field:focus-within .pf-ic {
+.bb-field:focus-within .bb-ic {
   color: var(--accent);
 }
-.pf-field input {
+.bb-field input {
   all: unset;
   flex: 1;
   min-width: 0;
@@ -252,26 +252,26 @@
   color: var(--fg);
   font: 400 15px/20px TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
-.pf-field input::placeholder {
+.bb-field input::placeholder {
   color: var(--sub);
   opacity: 1;
 }
 
 /* Light / Dim / Dark */
-.pf-row {
+.bb-row {
   cursor: default;
   padding-top: 8px;
   padding-bottom: 8px;
 }
-.pf-row:hover {
+.bb-row:hover {
   background: none;
 }
-.pf-pills {
+.bb-pills {
   display: flex;
   flex: 1;
   gap: 6px;
 }
-.pf-pill {
+.bb-pill {
   all: unset;
   box-sizing: border-box;
   flex: 1;
@@ -284,50 +284,50 @@
   box-shadow: inset 0 0 0 1px var(--edge);
   transition: box-shadow 0.15s;
 }
-.pf-pill[data-swatch="light"] {
+.bb-pill[data-swatch="light"] {
   background: #fff;
   color: #0f1419;
 }
-.pf-pill[data-swatch="dim"] {
+.bb-pill[data-swatch="dim"] {
   background: #15202b;
   color: #f7f9f9;
 }
-.pf-pill[data-swatch="dark"] {
+.bb-pill[data-swatch="dark"] {
   background: #000;
   color: #e7e9ea;
 }
-.pf-pill:hover,
-.pf-pill:focus-visible {
+.bb-pill:hover,
+.bb-pill:focus-visible {
   box-shadow: inset 0 0 0 2px var(--accent);
 }
-.pf-pill:focus-visible {
+.bb-pill:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
-.pf-small {
+.bb-small {
   padding-top: 9px;
   padding-bottom: 9px;
   font-size: 14px;
   font-weight: 400;
 }
-.pf-muted {
+.bb-muted {
   color: var(--sub);
 }
-.pf-danger {
+.bb-danger {
   color: rgb(244, 33, 46);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pf-menu {
+  .bb-menu {
     animation: none;
   }
-  .pf-toast {
+  .bb-toast {
     transition: none;
   }
 }
 
 /* ---------- toast ---------- */
-.pf-toast {
+.bb-toast {
   position: fixed;
   left: 50%;
   bottom: 24px;
@@ -345,24 +345,24 @@
   pointer-events: none;
   transition: opacity 0.2s, transform 0.2s;
 }
-.pf-toast.is-on {
+.bb-toast.is-on {
   opacity: 1;
   transform: translate(-50%, 0);
 }
-.pf-toast.is-error {
+.bb-toast.is-error {
   background: rgb(244, 33, 46);
 }
 /* A toast with a button in it, like "Undo". */
-.pf-toast:has(.pf-toast-btn) {
+.bb-toast:has(.bb-toast-btn) {
   display: flex;
   align-items: center;
   gap: 12px;
   white-space: nowrap;
 }
-.pf-toast.is-on:has(.pf-toast-btn) {
+.bb-toast.is-on:has(.bb-toast-btn) {
   pointer-events: auto;
 }
-.pf-toast-btn {
+.bb-toast-btn {
   min-height: 32px;
   padding: 0 14px;
   border: 0;
@@ -372,10 +372,10 @@
   font: 700 14px/20px TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   cursor: pointer;
 }
-.pf-toast-btn:hover {
+.bb-toast-btn:hover {
   background: rgb(230, 236, 240);
 }
-.pf-toast-btn:focus-visible {
+.bb-toast-btn:focus-visible {
   outline: 2px solid #fff;
   outline-offset: 2px;
 }

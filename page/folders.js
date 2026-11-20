@@ -1,4 +1,4 @@
-// Postfold's page: browse saved posts by folder, search them, tidy folders, and change settings.
+// Bowerbird's page: browse saved posts by folder, search them, tidy folders, and change settings.
 // It reads and writes chrome.storage.local through store.js. It makes no network requests of its own;
 // the only things it loads from outside are the profile pictures and post pictures from X's image server.
 
@@ -45,7 +45,7 @@ function fmtBytes(n) {
   if (n < 1024 * 1024) return `${Math.round(n / 1024)} KB`;
   return `${(n / 1024 / 1024).toFixed(1)} MB`;
 }
-const ownError = (e) => (/context invalidated/i.test(e?.message || '') ? 'Postfold was updated. Reload this page.' : e?.message || String(e));
+const ownError = (e) => (/context invalidated/i.test(e?.message || '') ? 'Bowerbird was updated. Reload this page.' : e?.message || String(e));
 
 let toastTimer;
 function toast(msg, action) {
@@ -101,8 +101,8 @@ function route(moveFocus = true) {
     if (next !== current) limit = PAGE_SIZE;
     current = next;
     stopRename();
-    document.title = current === 'all' ? 'Postfold: saved posts' : `Postfold: ${folderTitle()}`;
-  } else document.title = 'Postfold: settings';
+    document.title = current === 'all' ? 'Bowerbird: saved posts' : `Bowerbird: ${folderTitle()}`;
+  } else document.title = 'Bowerbird: settings';
   if (data) render();
   if (moveFocus && lastView && lastView !== view) (view === 'settings' ? $('#settings-h') : $('#folder-title')).focus({ preventScroll: true });
   if (lastView !== view) scrollTo(0, 0);
@@ -207,7 +207,7 @@ function renderEmpty(all, shown) {
     open.rel = 'noopener';
     parts.push(
       h('p', 'empty__title', 'Nothing saved yet'),
-      h('p', null, 'On x.com, click the Postfold icon next to Bookmark under any post, then choose Save post. Point at Save post to pick a folder.'),
+      h('p', null, 'On x.com, click the Bowerbird icon next to Bookmark under any post, then choose Save post. Point at Save post to pick a folder.'),
       open
     );
   } else if (query) {
@@ -222,7 +222,7 @@ function renderEmpty(all, shown) {
   } else {
     parts.push(
       h('p', 'empty__title', `Nothing in ${folderTitle()} yet`),
-      h('p', null, `On x.com, open the Postfold menu under a post, point at Save post and tick ${folderTitle()}. Or add posts from All posts below their text.`)
+      h('p', null, `On x.com, open the Bowerbird menu under a post, point at Save post and tick ${folderTitle()}. Or add posts from All posts below their text.`)
     );
   }
   empty.replaceChildren(...parts);
@@ -239,7 +239,7 @@ function renderLoadError(err) {
   empty.classList.add('is-error');
   empty.replaceChildren(
     h('p', 'empty__title', 'Couldn’t read your saved posts'),
-    h('p', null, `${ownError(err)} Try again. If it keeps happening, turn Postfold off and on in chrome://extensions.`),
+    h('p', null, `${ownError(err)} Try again. If it keeps happening, turn Bowerbird off and on in chrome://extensions.`),
     retry
   );
   empty.hidden = false;
@@ -330,11 +330,11 @@ function row(p) {
       toast('Couldn’t copy the link');
     }
   });
-  const del = iconBtn('trash', 'Remove from Postfold', 'is-danger');
+  const del = iconBtn('trash', 'Remove from Bowerbird', 'is-danger');
   del.dataset.focus = `${p.id}:remove`;
   del.addEventListener('click', async () => {
     const removed = await attempt(() => Store.removePost(p.id));
-    if (removed) toast('Removed from Postfold', { label: 'Undo', run: () => attempt(() => Store.restorePost(removed)) });
+    if (removed) toast('Removed from Bowerbird', { label: 'Undo', run: () => attempt(() => Store.restorePost(removed)) });
   });
   actions.append(copy, del);
   aside.append(actions);
@@ -485,7 +485,7 @@ $('#export').addEventListener('click', async () => {
   const blob = new Blob([JSON.stringify(file, null, 2)], { type: 'application/json' });
   const a = h('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `postfold-export-${new Date().toISOString().slice(0, 10)}.json`;
+  a.download = `bowerbird-export-${new Date().toISOString().slice(0, 10)}.json`;
   a.click();
   setTimeout(() => URL.revokeObjectURL(a.href), 10_000);
   setStatus(`Exported ${plural(file.posts.length, 'post')} and ${plural(file.folders.length, 'folder')}.`, true);
@@ -504,7 +504,7 @@ $('#import-file').addEventListener('change', async (e) => {
     try {
       parsed = JSON.parse(await file.text());
     } catch {
-      throw new Error('This file is not a Postfold export');
+      throw new Error('This file is not a Bowerbird export');
     }
     const res = await Store.importData(parsed);
     setStatus(`Imported ${plural(res.added, 'new post')} and ${plural(res.folders, 'new folder')}.`, true);

@@ -1,4 +1,4 @@
-// End-to-end test of the built extension (dist/postfold) in headless Edge with a throwaway profile.
+// End-to-end test of the built extension (dist/bowerbird) in headless Edge with a throwaway profile.
 // x.com and pbs.twimg.com are FAKE: --host-resolver-rules sends them to a local https server
 // (tests/fixtures/fake-x.mjs), so nothing touches the real sites.
 //   npm test            (builds first)
@@ -15,9 +15,9 @@ import { POSTS } from './fixtures/fake-x.mjs';
 import { startFakeX } from './lib/fake-server.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
-const EXT = path.join(root, 'dist', 'postfold');
+const EXT = path.join(root, 'dist', 'bowerbird');
 const OUT = path.join(root, 'tests', 'out');
-const work = fs.mkdtempSync(path.join(os.tmpdir(), 'postfold-e2e-'));
+const work = fs.mkdtempSync(path.join(os.tmpdir(), 'bowerbird-e2e-'));
 const downloads = path.join(work, 'downloads');
 fs.mkdirSync(downloads, { recursive: true });
 fs.rmSync(OUT, { recursive: true, force: true });
@@ -46,7 +46,7 @@ const cdp = await launch({
 
 const problems = [];
 const names = new Map(); // sessionId -> name, for error reports
-const worlds = new Map(); // sessionId -> Postfold's content script world
+const worlds = new Map(); // sessionId -> Bowerbird's content script world
 cdp.on((m) => {
   const where = names.get(m.sessionId);
   if (!where) return;
@@ -59,7 +59,7 @@ cdp.on((m) => {
   }
   if (m.method === 'Log.entryAdded' && ['error', 'warning'].includes(m.params.entry.level)) {
     const e = m.params.entry;
-    // Leaving a page cancels its picture loads; that is not an error in Postfold.
+    // Leaving a page cancels its picture loads; that is not an error in Bowerbird.
     if (!/net::ERR_ABORTED/.test(e.text)) problems.push(`${where}: ${e.source} ${e.level} ${e.text} ${e.url || ''}`);
   }
 });
@@ -95,7 +95,7 @@ const inWorld = (expr) => cdp.eval(x.sessionId, expr, worlds.get(x.sessionId));
 const untilWorld = (expr, ms) => cdp.until(x.sessionId, expr, ms, worlds.get(x.sessionId));
 const key = (k, opts) => cdp.key(x.sessionId, k, k === 'Enter' ? { text: '\r', ...opts } : opts);
 const focused = () => inWorld(`(() => { const a = document.activeElement; return a ? (a.getAttribute('aria-label') || a.textContent || a.placeholder || a.tagName).trim() : ''; })()`);
-const toastText = () => inWorld(`document.querySelector('.pf-toast.is-on')?.textContent || ''`);
+const toastText = () => inWorld(`document.querySelector('.bb-toast.is-on')?.textContent || ''`);
 async function waitToast(re, ms = 6000) {
   const end = Date.now() + ms;
   let t = '';
@@ -155,19 +155,19 @@ try {
   // ================= x.com =================
   x = await openTab('https://x.com/home?theme=light', 'x.com', { width: 1280, height: 900 });
   await cdp.send('Page.bringToFront', {}, x.sessionId);
-  const icons = await untilWorld(`document.querySelectorAll('article .pf-btn').length === ${POSTS.length}`, 10000);
-  check('an icon appears on every post', icons, await inWorld(`document.querySelectorAll('article .pf-btn').length`).catch((e) => e.message));
+  const icons = await untilWorld(`document.querySelectorAll('article .bb-btn').length === ${POSTS.length}`, 10000);
+  check('an icon appears on every post', icons, await inWorld(`document.querySelectorAll('article .bb-btn').length`).catch((e) => e.message));
   check(
     'the icon sits just before Bookmark',
-    await inWorld(`[...document.querySelectorAll('.pf-slot')].every((s) => s.nextElementSibling?.querySelector('[data-testid="bookmark"]'))`)
+    await inWorld(`[...document.querySelectorAll('.bb-slot')].every((s) => s.nextElementSibling?.querySelector('[data-testid="bookmark"]'))`)
   );
-  check('icons have an accessible name', await inWorld(`[...document.querySelectorAll('.pf-btn')].every((b) => /Postfold/.test(b.getAttribute('aria-label')))`));
+  check('icons have an accessible name', await inWorld(`[...document.querySelectorAll('.bb-btn')].every((b) => /Bowerbird/.test(b.getAttribute('aria-label')))`));
 
   // ---- keyboard: open the menu and save into a new folder ----
   const first = POSTS[0];
-  await inWorld(`${articleSel(first.id)}.querySelector('.pf-btn').focus()`);
+  await inWorld(`${articleSel(first.id)}.querySelector('.bb-btn').focus()`);
   await key('Enter');
-  await untilWorld(`!!document.querySelector('.pf-menu')`, 3000);
+  await untilWorld(`!!document.querySelector('.bb-menu')`, 3000);
   check('keyboard: Enter opens the menu with the focus on Light', (await focused()) === 'Screenshot, Light', await focused());
   await key('ArrowRight');
   check('keyboard: Right moves to Dim', (await focused()) === 'Screenshot, Dim', await focused());
@@ -175,11 +175,11 @@ try {
   check('keyboard: Down moves to Save post', (await focused()).startsWith('Save post'), await focused());
   await shoot(x, 'x-menu-light');
   await key('ArrowRight');
-  await untilWorld(`!!document.querySelector('.pf-sub')`, 3000);
+  await untilWorld(`!!document.querySelector('.bb-sub')`, 3000);
   check('keyboard: Right on Save post opens the folder panel, cursor in its search', (await focused()) === 'Find or make a folder', await focused());
-  check('folder panel says there are no folders yet', /No folders yet/.test(await inWorld(`document.querySelector('.pf-sub').textContent`)));
+  check('folder panel says there are no folders yet', /No folders yet/.test(await inWorld(`document.querySelector('.bb-sub').textContent`)));
   await cdp.send('Input.insertText', { text: 'Ideas' }, x.sessionId);
-  check('typing a new name offers to make that folder', /Make folder “Ideas”/.test(await inWorld(`document.querySelector('.pf-opt.is-active')?.textContent || ''`)));
+  check('typing a new name offers to make that folder', /Make folder “Ideas”/.test(await inWorld(`document.querySelector('.bb-opt.is-active')?.textContent || ''`)));
   await key('Enter');
   let t = await waitToast(/Saved to Ideas/);
   check('Enter makes the folder and saves the post into it', t === 'Saved to Ideas', t);
@@ -193,33 +193,33 @@ try {
       saved.avatar.startsWith('https://pbs.twimg.com/profile_images/') && /name=small/.test(saved.media) && saved.postedAt === Date.parse(first.time),
     saved
   );
-  check('focus goes back to the icon after saving', /Postfold/.test(await focused()), await focused());
-  check('the icon shows the post is saved', await untilWorld(`${articleSel(first.id)}.querySelector('.pf-btn').classList.contains('is-saved')`, 3000));
+  check('focus goes back to the icon after saving', /Bowerbird/.test(await focused()), await focused());
+  check('the icon shows the post is saved', await untilWorld(`${articleSel(first.id)}.querySelector('.bb-btn').classList.contains('is-saved')`, 3000));
 
   // ---- Esc steps back out ----
   await key('Enter');
-  await untilWorld(`!!document.querySelector('.pf-menu')`, 3000);
-  check('the menu shows which folder the post is in', /Ideas/.test(await inWorld(`document.querySelector('.pf-has-sub .pf-hint')?.textContent || ''`)));
+  await untilWorld(`!!document.querySelector('.bb-menu')`, 3000);
+  check('the menu shows which folder the post is in', /Ideas/.test(await inWorld(`document.querySelector('.bb-has-sub .bb-hint')?.textContent || ''`)));
   await key('ArrowDown');
   await key('ArrowRight');
-  await untilWorld(`!!document.querySelector('.pf-sub')`, 3000);
+  await untilWorld(`!!document.querySelector('.bb-sub')`, 3000);
   await key('Escape');
-  check('Esc in the folder panel goes back to Save post', !(await inWorld(`!!document.querySelector('.pf-sub')`)) && (await focused()).startsWith('Save post'), await focused());
+  check('Esc in the folder panel goes back to Save post', !(await inWorld(`!!document.querySelector('.bb-sub')`)) && (await focused()).startsWith('Save post'), await focused());
   await key('Escape');
-  check('Esc again closes the menu and puts the focus back on the icon', !(await inWorld(`!!document.querySelector('.pf-menu')`)) && /Postfold/.test(await focused()), await focused());
+  check('Esc again closes the menu and puts the focus back on the icon', !(await inWorld(`!!document.querySelector('.bb-menu')`)) && /Bowerbird/.test(await focused()), await focused());
 
   // ---- mouse: Save post, folder panel on hover ----
   const second = POSTS[1];
-  await clickEl(`${articleSel(second.id)}.querySelector('.pf-btn')`);
-  await untilWorld(`!!document.querySelector('.pf-menu')`, 3000);
-  await clickEl(`document.querySelector('.pf-has-sub')`);
-  t = await waitToast(/Saved to Postfold|Already/);
-  check('click on Save post saves it without a folder', t === 'Saved to Postfold' && (await storage())['post:' + second.id]?.folders.length === 0, t);
+  await clickEl(`${articleSel(second.id)}.querySelector('.bb-btn')`);
+  await untilWorld(`!!document.querySelector('.bb-menu')`, 3000);
+  await clickEl(`document.querySelector('.bb-has-sub')`);
+  t = await waitToast(/Saved to Bowerbird|Already/);
+  check('click on Save post saves it without a folder', t === 'Saved to Bowerbird' && (await storage())['post:' + second.id]?.folders.length === 0, t);
 
-  await clickEl(`${articleSel(second.id)}.querySelector('.pf-btn')`);
-  await untilWorld(`!!document.querySelector('.pf-menu')`, 3000);
-  await hoverEl(`document.querySelector('.pf-has-sub')`);
-  await untilWorld(`!!document.querySelector('.pf-sub')`, 3000);
+  await clickEl(`${articleSel(second.id)}.querySelector('.bb-btn')`);
+  await untilWorld(`!!document.querySelector('.bb-menu')`, 3000);
+  await hoverEl(`document.querySelector('.bb-has-sub')`);
+  await untilWorld(`!!document.querySelector('.bb-sub')`, 3000);
   check('hovering Save post opens the folder panel', true);
   await cdp.send('Input.insertText', { text: 'Writing tips' }, x.sessionId);
   await shoot(x, 'x-panel-light');
@@ -227,29 +227,29 @@ try {
   t = await waitToast(/Saved to Writing tips/);
   check('mouse and typing: saved to a second new folder', t === 'Saved to Writing tips', t);
 
-  await clickEl(`${articleSel(second.id)}.querySelector('.pf-btn')`);
-  await untilWorld(`!!document.querySelector('.pf-menu')`, 3000);
-  await hoverEl(`document.querySelector('.pf-has-sub')`);
-  await untilWorld(`!!document.querySelector('.pf-sub .pf-opt')`, 3000);
-  check('ticked folders show as selected', await inWorld(`[...document.querySelectorAll('.pf-sub .pf-opt')].find((o) => o.textContent === 'Writing tips')?.getAttribute('aria-selected') === 'true'`));
-  await clickEl(`[...document.querySelectorAll('.pf-sub .pf-opt')].find((o) => o.textContent === 'Ideas')`);
+  await clickEl(`${articleSel(second.id)}.querySelector('.bb-btn')`);
+  await untilWorld(`!!document.querySelector('.bb-menu')`, 3000);
+  await hoverEl(`document.querySelector('.bb-has-sub')`);
+  await untilWorld(`!!document.querySelector('.bb-sub .bb-opt')`, 3000);
+  check('ticked folders show as selected', await inWorld(`[...document.querySelectorAll('.bb-sub .bb-opt')].find((o) => o.textContent === 'Writing tips')?.getAttribute('aria-selected') === 'true'`));
+  await clickEl(`[...document.querySelectorAll('.bb-sub .bb-opt')].find((o) => o.textContent === 'Ideas')`);
   t = await waitToast(/Saved to Ideas/);
   check('clicking a folder adds the post to it', t === 'Saved to Ideas', t);
-  await clickEl(`${articleSel(second.id)}.querySelector('.pf-btn')`);
-  await untilWorld(`!!document.querySelector('.pf-menu')`, 3000);
-  await hoverEl(`document.querySelector('.pf-has-sub')`);
-  await untilWorld(`!!document.querySelector('.pf-sub .pf-opt')`, 3000);
-  await clickEl(`[...document.querySelectorAll('.pf-sub .pf-opt')].find((o) => o.textContent === 'Ideas')`);
+  await clickEl(`${articleSel(second.id)}.querySelector('.bb-btn')`);
+  await untilWorld(`!!document.querySelector('.bb-menu')`, 3000);
+  await hoverEl(`document.querySelector('.bb-has-sub')`);
+  await untilWorld(`!!document.querySelector('.bb-sub .bb-opt')`, 3000);
+  await clickEl(`[...document.querySelectorAll('.bb-sub .bb-opt')].find((o) => o.textContent === 'Ideas')`);
   t = await waitToast(/Removed from Ideas/);
   check('clicking a ticked folder takes the post out again', t === 'Removed from Ideas' && !(await storage())['post:' + second.id].folders.includes(ideas.id), t);
 
   // ---- screenshots ----
   for (const theme of ['light', 'dim', 'dark']) {
-    await clickEl(`${articleSel(first.id)}.querySelector('.pf-btn')`);
-    await untilWorld(`!!document.querySelector('.pf-menu')`, 3000);
-    await clickEl(`document.querySelector('.pf-pill[data-swatch="${theme}"]')`);
+    await clickEl(`${articleSel(first.id)}.querySelector('.bb-btn')`);
+    await untilWorld(`!!document.querySelector('.bb-menu')`, 3000);
+    await clickEl(`document.querySelector('.bb-pill[data-swatch="${theme}"]')`);
     t = await waitToast(/copied|saved|failed|Couldn/i, 10000);
-    const file = await waitFile(new RegExp(`postfold-maralind-${first.id}-${theme}\\.png$`));
+    const file = await waitFile(new RegExp(`bowerbird-maralind-${first.id}-${theme}\\.png$`));
     const info = file && pngInfo(file);
     const bg = { light: '#ffffff', dim: '#15202b', dark: '#000000' }[theme];
     check(`screenshot ${theme}: copied and saved`, t === 'Screenshot copied and saved to Downloads', t);
@@ -263,10 +263,10 @@ try {
   // With counts and the padded background.
   await setStorage({ settings: { copy: true, download: true, stats: true, frame: true } });
   await sleep(200);
-  await clickEl(`${articleSel(first.id)}.querySelector('.pf-btn')`);
-  await untilWorld(`!!document.querySelector('.pf-menu')`, 3000);
+  await clickEl(`${articleSel(first.id)}.querySelector('.bb-btn')`);
+  await untilWorld(`!!document.querySelector('.bb-menu')`, 3000);
   fs.readdirSync(downloads).forEach((f) => fs.rmSync(path.join(downloads, f)));
-  await clickEl(`document.querySelector('.pf-pill[data-swatch="light"]')`);
+  await clickEl(`document.querySelector('.bb-pill[data-swatch="light"]')`);
   let file = await waitFile(/-light\.png$/, 10000);
   let info = file && pngInfo(file);
   check('screenshot with padding: wider (1280 px) with the soft background', info && info.w === 1280 && info.corner === '#e2ebf6', info);
@@ -276,9 +276,9 @@ try {
   await setStorage({ settings: { copy: true, download: false, stats: false, frame: false } });
   await sleep(200);
   fs.readdirSync(downloads).forEach((f) => fs.rmSync(path.join(downloads, f)));
-  await clickEl(`${articleSel(POSTS[2].id)}.querySelector('.pf-btn')`);
-  await untilWorld(`!!document.querySelector('.pf-menu')`, 3000);
-  await clickEl(`document.querySelector('.pf-pill[data-swatch="dim"]')`);
+  await clickEl(`${articleSel(POSTS[2].id)}.querySelector('.bb-btn')`);
+  await untilWorld(`!!document.querySelector('.bb-menu')`, 3000);
+  await clickEl(`document.querySelector('.bb-pill[data-swatch="dim"]')`);
   t = await waitToast(/copied|saved|failed|Couldn/i, 10000);
   await sleep(600);
   check('with saving off: copied only, no file', t === 'Screenshot copied' && fs.readdirSync(downloads).length === 0, { t, files: fs.readdirSync(downloads) });
@@ -291,14 +291,14 @@ try {
   check('reads the quoted post and the counts', readQuote.q === 'solmarin' && /Warm and cool/.test(readQuote.qt) && readQuote.stats?.likes === 410 && readQuote.stats?.views === 9800, readQuote);
 
   // ---- Remove + Undo from the panel ----
-  await clickEl(`${articleSel(second.id)}.querySelector('.pf-btn')`);
-  await untilWorld(`!!document.querySelector('.pf-menu')`, 3000);
-  await hoverEl(`document.querySelector('.pf-has-sub')`);
-  await untilWorld(`!!document.querySelector('.pf-sub .pf-danger')`, 3000);
-  await clickEl(`document.querySelector('.pf-sub .pf-danger')`);
-  t = await waitToast(/Removed from Postfold/);
-  check('Remove from Postfold removes the saved post', t.startsWith('Removed from Postfold') && !(await storage())['post:' + second.id], t);
-  await clickEl(`document.querySelector('.pf-toast .pf-toast-btn')`);
+  await clickEl(`${articleSel(second.id)}.querySelector('.bb-btn')`);
+  await untilWorld(`!!document.querySelector('.bb-menu')`, 3000);
+  await hoverEl(`document.querySelector('.bb-has-sub')`);
+  await untilWorld(`!!document.querySelector('.bb-sub .bb-danger')`, 3000);
+  await clickEl(`document.querySelector('.bb-sub .bb-danger')`);
+  t = await waitToast(/Removed from Bowerbird/);
+  check('Remove from Bowerbird removes the saved post', t.startsWith('Removed from Bowerbird') && !(await storage())['post:' + second.id], t);
+  await clickEl(`document.querySelector('.bb-toast .bb-toast-btn')`);
   await sleep(400);
   check('Undo brings it back with its folders', (await storage())['post:' + second.id]?.folders.length === 1);
 
@@ -309,12 +309,12 @@ try {
     await cdp.until(s.sessionId, `document.querySelectorAll('article').length > 0`, 5000);
     const prev = x;
     x = s;
-    await untilWorld(`document.querySelectorAll('.pf-btn').length === ${POSTS.length}`, 8000);
-    await clickEl(`${articleSel(first.id)}.querySelector('.pf-btn')`);
-    await untilWorld(`!!document.querySelector('.pf-menu')`, 3000);
-    check(`menu follows X's ${theme} theme`, (await inWorld(`document.querySelector('.pf-menu').dataset.theme`)) === theme);
-    await hoverEl(`document.querySelector('.pf-has-sub')`);
-    await untilWorld(`!!document.querySelector('.pf-sub')`, 3000);
+    await untilWorld(`document.querySelectorAll('.bb-btn').length === ${POSTS.length}`, 8000);
+    await clickEl(`${articleSel(first.id)}.querySelector('.bb-btn')`);
+    await untilWorld(`!!document.querySelector('.bb-menu')`, 3000);
+    check(`menu follows X's ${theme} theme`, (await inWorld(`document.querySelector('.bb-menu').dataset.theme`)) === theme);
+    await hoverEl(`document.querySelector('.bb-has-sub')`);
+    await untilWorld(`!!document.querySelector('.bb-sub')`, 3000);
     await shoot(x, `x-panel-${theme}`);
     await key('Escape');
     await key('Escape');
@@ -328,7 +328,7 @@ try {
   st = await storage();
   check('all four posts are saved', POSTS.every((p) => st['post:' + p.id]), Object.keys(st));
 
-  // ================= Postfold's page =================
+  // ================= Bowerbird's page =================
   const pageUrl = `chrome-extension://${extId}/page/folders.html`;
   const pageReqs = [];
   const pg = await cdp.open('about:blank', { width: 1280, height: 900 });
@@ -448,8 +448,8 @@ try {
   await PU(`document.querySelectorAll('#list .row').length === 4`, 3000);
   await P(`document.querySelector('.row[data-id="${POSTS[2].id}"] [data-focus$=":remove"]').focus()`);
   await pkey('Enter');
-  t = await ptoast(/Removed from Postfold/);
-  check('page: keyboard Remove removes the post', t === 'Removed from Postfold' && (await P(`document.querySelectorAll('#list .row').length`)) === 3);
+  t = await ptoast(/Removed from Bowerbird/);
+  check('page: keyboard Remove removes the post', t === 'Removed from Bowerbird' && (await P(`document.querySelectorAll('#list .row').length`)) === 3);
   check('page: after Remove the focus stays in the list', await P(`!!document.activeElement.closest('#list')`), await P(`document.activeElement.outerHTML.slice(0, 80)`));
   await pclick(`document.querySelector('#toast button')`);
   await PU(`document.querySelectorAll('#list .row').length === 4`, 3000);
@@ -476,16 +476,16 @@ try {
   // Export.
   fs.readdirSync(downloads).forEach((f) => fs.rmSync(path.join(downloads, f)));
   await pclick(`document.querySelector('#export')`);
-  file = await waitFile(/^postfold-export-.*\.json$/);
+  file = await waitFile(/^bowerbird-export-.*\.json$/);
   const exported = file && JSON.parse(fs.readFileSync(file, 'utf8'));
-  check('page: Export saves a JSON file with every post and folder', exported?.app === 'postfold' && exported.posts.length === 4 && exported.folders.length === 2, exported && { posts: exported.posts.length });
+  check('page: Export saves a JSON file with every post and folder', exported?.app === 'bowerbird' && exported.posts.length === 4 && exported.folders.length === 2, exported && { posts: exported.posts.length });
 
   // Import (one new post, one new folder, one post already saved gains a folder).
   const importFile = path.join(work, 'import.json');
   fs.writeFileSync(
     importFile,
     JSON.stringify({
-      app: 'postfold',
+      app: 'bowerbird',
       version: 1,
       folders: [{ id: 'fother1', name: 'Imported' }],
       posts: [
@@ -511,8 +511,8 @@ try {
   fs.writeFileSync(importFile, '{"hello": 1}');
   await cdp.send('DOM.setFileInputFiles', { nodeId: (await cdp.send('DOM.querySelector', { nodeId: (await cdp.send('DOM.getDocument', {}, pg.sessionId)).root.nodeId, selector: '#import-file' }, pg.sessionId)).nodeId, files: [importFile] }, pg.sessionId);
   await P(`location.hash = '#settings'`);
-  await PU(`/not a Postfold export/.test(document.querySelector('#data-status').textContent)`, 4000);
-  check('page: Import says when a file is not an export', /not a Postfold export/.test(await P(`document.querySelector('#data-status').textContent`)));
+  await PU(`/not a Bowerbird export/.test(document.querySelector('#data-status').textContent)`, 4000);
+  check('page: Import says when a file is not an export', /not a Bowerbird export/.test(await P(`document.querySelector('#data-status').textContent`)));
 
   // Dark mode.
   await P(`location.hash = '#all'`);
@@ -558,12 +558,12 @@ try {
   // Toolbar button and "Open saved posts" open this page.
   const before = (await cdp.send('Target.getTargets')).targetInfos.filter((t) => t.url.startsWith(pageUrl)).length;
   await cdp.send('Page.bringToFront', {}, x.sessionId);
-  await clickEl(`${articleSel(first.id)}.querySelector('.pf-btn')`);
-  await untilWorld(`!!document.querySelector('.pf-menu')`, 3000);
-  await clickEl(`[...document.querySelectorAll('.pf-menu .pf-item')].find((b) => b.textContent === 'Open saved posts')`);
+  await clickEl(`${articleSel(first.id)}.querySelector('.bb-btn')`);
+  await untilWorld(`!!document.querySelector('.bb-menu')`, 3000);
+  await clickEl(`[...document.querySelectorAll('.bb-menu .bb-item')].find((b) => b.textContent === 'Open saved posts')`);
   await sleep(800);
   const after = (await cdp.send('Target.getTargets')).targetInfos.filter((t) => t.url.startsWith(pageUrl)).length;
-  check('"Open saved posts" opens (or switches to) the Postfold page', after >= before && after >= 1, { before, after });
+  check('"Open saved posts" opens (or switches to) the Bowerbird page', after >= before && after >= 1, { before, after });
 } catch (e) {
   check('the test ran to the end', false, e.stack || e.message);
 } finally {

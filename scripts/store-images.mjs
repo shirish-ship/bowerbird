@@ -3,7 +3,7 @@
 //   npm run build && npm run store-images
 // The pictures of the extension are real: the built extension runs in headless Edge on the fake
 // timeline from tests/fixtures (made-up people, no X logos or artwork). The frames around them use the
-// same Terrazzo tokens and fonts as Postfold's own page.
+// same Terrazzo tokens and fonts as Bowerbird's own page.
 
 import fs from 'node:fs';
 import os from 'node:os';
@@ -16,10 +16,10 @@ import { COLORS, markSvg } from './make-icons.mjs';
 
 const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const rel = (...p) => path.join(root, ...p);
-const EXT = rel('dist', 'postfold');
+const EXT = rel('dist', 'bowerbird');
 if (!fs.existsSync(path.join(EXT, 'manifest.json'))) throw new Error('Run "npm run build" first');
 const MANIFEST = JSON.parse(fs.readFileSync(path.join(EXT, 'manifest.json'), 'utf8'));
-const work = fs.mkdtempSync(path.join(os.tmpdir(), 'postfold-store-'));
+const work = fs.mkdtempSync(path.join(os.tmpdir(), 'bowerbird-store-'));
 const raw = (name) => path.join(work, name + '.png');
 const OUT = rel('store');
 fs.mkdirSync(path.join(OUT, 'screenshots'), { recursive: true });
@@ -32,7 +32,7 @@ cdp.on((m) => {
   if (m.method === 'Runtime.executionContextCreated' && m.params.context.auxData?.type === 'isolated' && m.params.context.name === MANIFEST.name) worlds.set(m.sessionId, m.params.context.id);
 });
 
-// Capture part of the screen without scrolling (scrolling would close Postfold's menu).
+// Capture part of the screen without scrolling (scrolling would close Bowerbird's menu).
 async function capture(sessionId, file, clip) {
   const { data } = await cdp.send('Page.captureScreenshot', { format: 'png', clip: { ...clip, scale: 1 }, captureBeyondViewport: false }, sessionId);
   fs.writeFileSync(file, Buffer.from(data, 'base64'));
@@ -42,10 +42,10 @@ const pad = (r, p) => ({ x: Math.max(0, r.x - p), y: Math.max(0, r.y - p), width
 try {
   const sw = await extensionWorker(cdp, MANIFEST.name);
 
-  // ---------- x.com: seed folders through Postfold's own code, then open its menus ----------
+  // ---------- x.com: seed folders through Bowerbird's own code, then open its menus ----------
   const x = await cdp.open('https://x.com/home?theme=light', { width: 1280, height: 900, scale: 2 });
   const W = (expr) => cdp.eval(x.sessionId, expr, worlds.get(x.sessionId));
-  await cdp.until(x.sessionId, `document.querySelectorAll('.pf-btn').length === ${POSTS.length}`, 10000, worlds.get(x.sessionId));
+  await cdp.until(x.sessionId, `document.querySelectorAll('.bb-btn').length === ${POSTS.length}`, 10000, worlds.get(x.sessionId));
   const art = (i) => `[...document.querySelectorAll('article')].find((a) => a.querySelector('a[href$="/status/${POSTS[i].id}"]'))`;
   await W(`(async () => {
     const f = {};
@@ -59,7 +59,7 @@ try {
     await put(0, ['Ideas', 'Design references']);
     // A few more made-up saved posts, so the page has something to show.
     const pic = (who) => 'https://pbs.twimg.com/profile_images/' + who + '/avatar_normal.svg';
-    await Store.importData({ app: 'postfold', version: 1, folders: [], posts: [
+    await Store.importData({ app: 'bowerbird', version: 1, folders: [], posts: [
       { id: '1857500000000000003', handle: 'inesmakes', name: 'Inès Duval', avatar: pic('ines'), text: 'A good empty state says what goes here and gives you one button to start. That is the whole trick.', folders: [f['Design references']], postedAt: Date.parse('2026-11-12T10:00:00Z'), savedAt: Date.now() - 9e6 },
       { id: '1857500000000000002', handle: 'kofiships', name: 'Kofi Mensah', avatar: pic('kofi'), text: 'Shipped an export button today. The boring features are the ones people thank you for.', folders: [f['Ideas']], postedAt: Date.parse('2026-11-10T15:30:00Z'), savedAt: Date.now() - 8e6 },
       { id: '1857500000000000001', handle: 'rhea_reads', name: 'Rhea Kapoor', avatar: pic('rhea'), text: 'Weekend reading: two essays on attention and one on long walks.', folders: [f['Read later']], postedAt: Date.parse('2026-11-08T08:45:00Z'), savedAt: Date.now() - 7e6 },
@@ -78,14 +78,14 @@ try {
 
   // A: the menu on a short post.
   await W(`scrollTo(0, 0)`);
-  await clickAt(await rect(`${art(1)}.querySelector('.pf-btn')`));
-  await cdp.until(x.sessionId, `!!document.querySelector('.pf-menu')`, 3000, worlds.get(x.sessionId));
-  await hoverAt(await rect(`document.querySelector('.pf-pill[data-swatch="dim"]')`));
+  await clickAt(await rect(`${art(1)}.querySelector('.bb-btn')`));
+  await cdp.until(x.sessionId, `!!document.querySelector('.bb-menu')`, 3000, worlds.get(x.sessionId));
+  await hoverAt(await rect(`document.querySelector('.bb-pill[data-swatch="dim"]')`));
   await sleep(350);
   {
     const a = await rect(art(1));
     const above = await rect(art(0));
-    const m = await rect(`document.querySelector('.pf-menu')`);
+    const m = await rect(`document.querySelector('.bb-menu')`);
     const box = union({ ...a, y: above.y + above.height - 230, height: a.y + a.height - (above.y + above.height - 230) }, m);
     await capture(x.sessionId, raw('menu'), pad({ ...box, x: a.x, width: Math.max(a.x + a.width, m.x + m.width) - a.x }, 0));
   }
@@ -93,16 +93,16 @@ try {
   await sleep(200);
 
   // B: the folder panel on the post with a picture.
-  await clickAt(await rect(`${art(0)}.querySelector('.pf-btn')`));
-  await cdp.until(x.sessionId, `!!document.querySelector('.pf-menu')`, 3000, worlds.get(x.sessionId));
-  await hoverAt(await rect(`document.querySelector('.pf-has-sub')`));
-  await cdp.until(x.sessionId, `!!document.querySelector('.pf-sub .pf-opt')`, 3000, worlds.get(x.sessionId));
-  await hoverAt(await rect(`[...document.querySelectorAll('.pf-sub .pf-opt')].find((o) => o.textContent === 'Ideas')`));
+  await clickAt(await rect(`${art(0)}.querySelector('.bb-btn')`));
+  await cdp.until(x.sessionId, `!!document.querySelector('.bb-menu')`, 3000, worlds.get(x.sessionId));
+  await hoverAt(await rect(`document.querySelector('.bb-has-sub')`));
+  await cdp.until(x.sessionId, `!!document.querySelector('.bb-sub .bb-opt')`, 3000, worlds.get(x.sessionId));
+  await hoverAt(await rect(`[...document.querySelectorAll('.bb-sub .bb-opt')].find((o) => o.textContent === 'Ideas')`));
   await sleep(350);
   {
     const a = await rect(art(0));
-    const m = await rect(`document.querySelector('.pf-menu:not(.pf-sub)')`);
-    const s = await rect(`document.querySelector('.pf-sub')`);
+    const m = await rect(`document.querySelector('.bb-menu:not(.bb-sub)')`);
+    const s = await rect(`document.querySelector('.bb-sub')`);
     const top = m.y - 300;
     const right = Math.max(s.x + s.width, a.x + a.width) + 20;
     const bottom = Math.max(s.y + s.height, m.y + m.height) + 20;
@@ -111,13 +111,13 @@ try {
   await cdp.key(x.sessionId, 'Escape');
   await cdp.key(x.sessionId, 'Escape');
 
-  // C: the screenshots themselves, straight from Postfold's renderer.
+  // C: the screenshots themselves, straight from Bowerbird's renderer.
   for (const theme of ['light', 'dim', 'dark']) {
     const dataUrl = await W(`Shot.render(Post.read(${art(0)}), '${theme}', { stats: true }).then((b) => new Promise((r) => { const f = new FileReader(); f.onload = () => r(f.result); f.readAsDataURL(b); }))`);
     fs.writeFileSync(raw('shot-' + theme), Buffer.from(dataUrl.split(',')[1], 'base64'));
   }
 
-  // D and E: Postfold's page, light and dark.
+  // D and E: Bowerbird's page, light and dark.
   const pg = await cdp.open('about:blank', { width: 1040, height: 700, scale: 2 });
   await cdp.send('Emulation.setScrollbarsHidden', { hidden: true }, pg.sessionId);
   await cdp.send('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-color-scheme', value: 'light' }] }, pg.sessionId);
@@ -138,7 +138,7 @@ try {
   const font = (file) => dataUri(rel('page/fonts', file), 'font/woff2');
   const tokens = fs.readFileSync(rel('page/tokens.css'), 'utf8');
   const darkTokens = fs.readFileSync(rel('page/folders.css'), 'utf8').match(/@media \(prefers-color-scheme: dark\) \{\s*:root \{([\s\S]*?)\}\s*\}/)[1];
-  const css = `/* Hallmark · store frames for Postfold · theme: Terrazzo, same tokens as the extension's page */
+  const css = `/* Hallmark · store frames for Bowerbird · theme: Terrazzo, same tokens as the extension's page */
 ${tokens}
 .dark { color-scheme: dark; ${darkTokens} }
 @font-face { font-family: "Syne"; font-weight: 700; src: url("${font('syne-700.woff2')}") format("woff2"); }
@@ -163,7 +163,7 @@ p { margin: 0; max-width: 30ch; font-size: 20px; line-height: 1.45; color: var(-
 .promo { display: flex; align-items: center; justify-content: center; background: var(--color-accent); color: var(--color-plate); font-family: var(--font-display); font-weight: 700; letter-spacing: var(--tracking-display); }
 `;
   const mark = markSvg();
-  const lightMark = markSvg({ page: COLORS.PLATE, fold: COLORS.INK, marks: COLORS.RUST });
+  const lightMark = markSvg({ bird: COLORS.PLATE, marks: COLORS.RUST, perch: COLORS.INK });
 
   async function render(html, file, width, height) {
     const page = path.join(work, 'frame.html');
@@ -175,7 +175,7 @@ p { margin: 0; max-width: 30ch; font-size: 20px; line-height: 1.45; color: var(-
     console.log(path.relative(root, file));
   }
   const frame = ({ title, text, stage, dark }) => `<div class="frame${dark ? ' dark' : ''}">
-  <div class="copy"><div class="brand">${mark}Postfold</div><div><h1>${title}</h1><p>${text}</p></div><div class="rule"></div></div>
+  <div class="copy"><div class="brand">${mark}Bowerbird</div><div><h1>${title}</h1><p>${text}</p></div><div class="rule"></div></div>
   <div class="stage">${stage}</div></div>`;
   const img = (name, width) => `<img class="plate" src="${dataUri(raw(name))}" style="width:${width}px" alt="">`;
   // Display width for a 2x capture: as big as fits, never past 1.4x (still sharp).
@@ -197,7 +197,7 @@ p { margin: 0; max-width: 30ch; font-size: 20px; line-height: 1.45; color: var(-
 
   // Small promo tile: the brand only, no other words.
   await render(
-    `<div class="promo" style="width:440px;height:280px;gap:22px"><span style="display:block;width:92px;height:92px">${lightMark.replace('<svg ', '<svg width="92" height="92" ')}</span><span style="font-size:58px">Postfold</span></div>`,
+    `<div class="promo" style="width:440px;height:280px;gap:18px"><span style="display:block;width:76px;height:76px">${lightMark.replace('<svg ', '<svg width="76" height="76" ')}</span><span style="font-size:46px">Bowerbird</span></div>`,
     path.join(OUT, 'promo', 'small-promo-440x280.png'),
     440,
     280
@@ -205,7 +205,7 @@ p { margin: 0; max-width: 30ch; font-size: 20px; line-height: 1.45; color: var(-
   // Marquee: the brand on the left, the three themes on the right.
   await render(
     `<div class="promo" style="width:1400px;height:560px;justify-content:space-between;position:relative;overflow:clip">
-      <div style="display:flex;align-items:center;gap:28px;padding-left:88px"><span style="display:block;width:128px;height:128px">${lightMark.replace('<svg ', '<svg width="128" height="128" ')}</span><span style="font-size:88px">Postfold</span></div>
+      <div style="display:flex;align-items:center;gap:28px;padding-left:88px"><span style="display:block;width:128px;height:128px">${lightMark.replace('<svg ', '<svg width="128" height="128" ')}</span><span style="font-size:88px">Bowerbird</span></div>
       <div class="fan" style="width:620px;height:560px;margin-top:120px;margin-right:-20px">${['light', 'dim', 'dark'].map((t) => `<img src="${dataUri(raw('shot-' + t))}" alt="" style="width:360px">`).join('')}</div>
     </div>`,
     path.join(OUT, 'promo', 'marquee-1400x560.png'),

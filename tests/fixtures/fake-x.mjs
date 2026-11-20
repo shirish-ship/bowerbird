@@ -1,4 +1,4 @@
-// A fake x.com timeline for tests and store screenshots. It copies the structure Postfold reads
+// A fake x.com timeline for tests and store screenshots. It copies the structure Bowerbird reads
 // (data-testid attributes, the action bar, the time link), not X's look or artwork: no X logo, no X icons.
 // All people and posts here are made up.
 

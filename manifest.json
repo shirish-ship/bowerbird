@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
-  "name": "Postfold: Screenshots and Folders for Posts",
-  "short_name": "Postfold",
+  "name": "Bowerbird: Screenshots and Folders for Posts",
+  "short_name": "Bowerbird",
   "version": "1.0.0",
   "description": "Make clean screenshots of posts on x.com and save posts into your own folders. Everything stays on your device.",
   "minimum_chrome_version": "110",
@@ -10,7 +10,7 @@
     "service_worker": "background.js"
   },
   "action": {
-    "default_title": "Open Postfold",
+    "default_title": "Open Bowerbird",
     "default_icon": {
       "16": "icons/icon16.png",
       "32": "icons/icon32.png",

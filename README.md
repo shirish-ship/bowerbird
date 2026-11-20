@@ -1,24 +1,24 @@
-# Postfold
+# Bowerbird
 
 A Chrome extension for x.com with two jobs:
 
 1. **Screenshots.** A clean image of any post in Light, Dim or Dark. It is copied to the clipboard and saved as a PNG. Settings add the like, repost and view counts, or padding on a soft background.
-2. **Folders.** Save a post into one or more folders you make. Browse them on Postfold's own page: search, rename, merge and delete folders, remove posts, export and import a JSON file.
+2. **Folders.** Save a post into one or more folders you make. Browse them on Bowerbird's own page: search, rename, merge and delete folders, remove posts, export and import a JSON file.
 
-Everything stays in the browser on your computer. Postfold has no server, no account, no analytics and no remote code. It asks for one permission, `storage`.
+Everything stays in the browser on your computer. Bowerbird has no server, no account, no analytics and no remote code. It asks for one permission, `storage`.
 
-Postfold is an independent tool. It is not made by, endorsed by or affiliated with X Corp.
+Bowerbird is an independent tool. It is not made by, endorsed by or affiliated with X Corp.
 
-- Privacy policy: https://shirish-ship.github.io/postfold/privacy.html
+- Privacy policy: https://shirish-ship.github.io/bowerbird/privacy.html
 - Store listing text and images: [`store/`](store/)
 
 ## How to use it
 
-On x.com, click the Postfold icon (a page with a folded corner) just left of Bookmark under any post.
+On x.com, click the Bowerbird icon (a small bird) just left of Bookmark under any post.
 
 - Pick **Light**, **Dim** or **Dark** for a screenshot.
 - Click **Save post** to save it, or point at it to open the folder list. Type a name and press Enter to make a folder.
-- Click the Postfold toolbar button, or **Open saved posts**, to see everything you saved.
+- Click the Bowerbird toolbar button, or **Open saved posts**, to see everything you saved.
 
 Keyboard: Tab to the icon and press Enter. Arrow keys move through the menu, Right opens the folder list, Esc steps back.
 
@@ -34,7 +34,7 @@ cd "$env:USERPROFILE\Desktop\x-kit-public"
 npm run build
 ```
 
-Then in Chrome open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick the `dist\postfold` folder.
+Then in Chrome open `chrome://extensions`, turn on **Developer mode**, click **Load unpacked** and pick the `dist\bowerbird` folder.
 
 ## Tests
 
@@ -50,7 +50,7 @@ Other scripts:
 
 | Command | What it does |
 | --- | --- |
-| `npm run build` | Checks the package (permissions, no remote code or eval, every file present) and writes `dist\postfold-<version>.zip` |
+| `npm run build` | Checks the package (permissions, no remote code or eval, every file present) and writes `dist\bowerbird-<version>.zip` |
 | `npm run icons` | Redraws `icons\*.png` from the mark |
 | `npm run store-images` | Remakes the store screenshots and promo tiles in `store\` (run `npm run build` first) |
 
@@ -90,7 +90,7 @@ cd "$env:USERPROFILE\Desktop\x-kit-public"
 npm run build
 ```
 
-The upload file is `dist\postfold-1.0.0.zip`. Open the folder with:
+The upload file is `dist\bowerbird-1.0.0.zip`. Open the folder with:
 
 ```powershell
 explorer dist
@@ -98,11 +98,11 @@ explorer dist
 
 ### 3. Upload and fill in the tabs
 
-1. In the dashboard, click **New item** and upload `dist\postfold-1.0.0.zip`.
+1. In the dashboard, click **New item** and upload `dist\bowerbird-1.0.0.zip`.
 2. **Store listing:** paste the description, category and links from [`store/listing.md`](store/listing.md). Upload the icon, the five screenshots and the small promo tile from `store\` (the marquee is optional).
 3. **Privacy practices:** copy the single purpose, the two justifications, the data usage ticks and the privacy policy URL from [`store/privacy-practices.md`](store/privacy-practices.md). Remote code: **No**.
 4. **Distribution:** Free, Public, all regions.
-5. Open https://shirish-ship.github.io/postfold/privacy.html and check that it loads.
+5. Open https://shirish-ship.github.io/bowerbird/privacy.html and check that it loads.
 
 ### 4. Submit
 

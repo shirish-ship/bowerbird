@@ -1,25 +1,28 @@
-// Postfold on x.com: one small icon in every post's action bar, just left of Bookmark.
+// Bowerbird on x.com: one small icon in every post's action bar, just left of Bookmark.
 // It opens a menu: Screenshot (Light, Dim or Dark), Save post (into folders), Open saved posts.
 // Everything it saves stays in this browser (see store.js). It never posts, likes or follows.
 
 (() => {
-  if (window.__postfold) return;
-  window.__postfold = true;
+  if (window.__bowerbird) return;
+  window.__bowerbird = true;
 
   const REPLY = '[data-testid="reply"], [data-engagement-action="reply"]';
   const BOOKMARK = '[data-testid="bookmark"], [data-testid="removeBookmark"], [data-engagement-action="bookmark"]';
-  const RELOAD = 'Postfold was updated. Refresh this tab, then try again.';
+  const RELOAD = 'Bowerbird was updated. Refresh this tab, then try again.';
 
   // ---------- icons ----------
   const svg = (body, attrs = 'fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"') =>
     `<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" ${attrs}>${body}</svg>`;
-  // A page with its top corner folded over: Postfold's mark.
-  const PAGE = 'M6.5 3h8l5 5v11a2 2 0 0 1-2 2h-11a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z';
+  // Bowerbird's mark: a plain bird holding a card. Outlined until the post is saved, then filled.
+  const BIRD = 'M2.5 20.5A14.4 14.4 0 0 1 10.3 8.3A4.5 4.5 0 1 1 14.6 12.2V20.5Z';
+  const BEAK = 'M18.6 6.1 21.8 8.2 18.6 10.1Z';
   const ICON = {
-    mark: svg(`<path d="${PAGE}"/><path d="M14.5 3v3.5a1.5 1.5 0 0 0 1.5 1.5h3.5"/>`),
+    mark: svg(
+      `<path d="${BIRD}"/><path d="${BEAK}" fill="currentColor" stroke-width="1.2"/><circle cx="15.4" cy="7.4" r="1.15" fill="currentColor" stroke="none"/><path d="M6.2 14.6h3.6v3.6H6.2Z" fill="currentColor" stroke="none"/>`
+    ),
     markSaved: svg(
-      '<path d="M6.5 3H14v4a2 2 0 0 0 2 2h4v10a2 2 0 0 1-2 2H6.5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M15.5 3.4 19.6 7.5H16a.5.5 0 0 1-.5-.5Z"/>',
-      'fill="currentColor" stroke="none"'
+      `<path fill-rule="evenodd" d="${BIRD}M16.55 7.4a1.15 1.15 0 1 0-2.3 0 1.15 1.15 0 1 0 2.3 0ZM6 14.4h4v4H6Z"/><path d="${BEAK}" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>`,
+      'fill="currentColor"'
     ),
     camera: svg(
       '<path d="M3.75 8.25a2 2 0 0 1 2-2h1.9l1.4-2h5.9l1.4 2h1.9a2 2 0 0 1 2 2v9.5a2 2 0 0 1-2 2H5.75a2 2 0 0 1-2-2Z"/><circle cx="12" cy="12.75" r="3.5"/>'
@@ -87,14 +90,14 @@
   // A short message at the bottom. `action` ({ label, run }) adds a button, like "Undo".
   function toast(msg, isError = false, ms = 2600, action = null) {
     if (!toastEl) {
-      toastEl = el('div', 'pf-toast');
+      toastEl = el('div', 'bb-toast');
       toastEl.setAttribute('role', 'status');
       toastEl.setAttribute('aria-live', 'polite');
       document.body.append(toastEl);
     }
     toastEl.replaceChildren(el('span', '', msg));
     if (action) {
-      const b = button('pf-toast-btn', action.label);
+      const b = button('bb-toast-btn', action.label);
       b.addEventListener('click', () => {
         toastEl.classList.remove('is-on');
         action.run();
@@ -136,14 +139,14 @@
 
     Promise.all([png, copied])
       .then(([blob, didCopy]) => {
-        if (download) saveFile(blob, `postfold-${post.handle || 'post'}-${post.id}-${theme}.png`);
+        if (download) saveFile(blob, `bowerbird-${post.handle || 'post'}-${post.id}-${theme}.png`);
         if (didCopy && download) toast('Screenshot copied and saved to Downloads');
         else if (didCopy) toast('Screenshot copied');
         else if (download) toast(copy ? "Saved to Downloads. Couldn't copy it" : 'Screenshot saved to Downloads', copy && !didCopy);
         else toast("Couldn't copy the screenshot. Click the page, then try again", true, 5000);
       })
       .catch((e) => {
-        console.error('[Postfold] screenshot failed', e);
+        console.error('[Bowerbird] screenshot failed', e);
         toast('Screenshot failed', true);
       });
   }
@@ -152,7 +155,7 @@
     const post = Post.read(article);
     if (!post) return toast("Couldn't read this post", true);
     const had = !!state.posts[post.id];
-    if (await attempt(() => Store.savePost(post))) toast(had ? 'Already saved' : 'Saved to Postfold');
+    if (await attempt(() => Store.savePost(post))) toast(had ? 'Already saved' : 'Saved to Bowerbird');
   }
 
   function openLibrary() {
@@ -171,18 +174,18 @@
   let uid = 0;
   function folderPanel(article) {
     const post = Post.read(article);
-    const box = el('div', 'pf-menu pf-sub');
+    const box = el('div', 'bb-menu bb-sub');
     box.setAttribute('role', 'dialog');
     box.setAttribute('aria-label', 'Save to folders');
     if (!post) {
-      box.append(el('div', 'pf-empty', "Couldn't read this post"));
+      box.append(el('div', 'bb-empty', "Couldn't read this post"));
       return box;
     }
     const item = state.posts[post.id];
-    const listId = `pf-list-${++uid}`;
+    const listId = `bb-list-${++uid}`;
 
-    const field = el('label', 'pf-field');
-    field.innerHTML = `<span class="pf-ic">${ICON.search}</span>`;
+    const field = el('label', 'bb-field');
+    field.innerHTML = `<span class="bb-ic">${ICON.search}</span>`;
     const input = el('input');
     Object.assign(input, { type: 'text', placeholder: 'Find or make a folder', maxLength: Store.NAME_MAX, spellcheck: false, autocomplete: 'off' });
     input.setAttribute('role', 'combobox');
@@ -192,7 +195,7 @@
     input.setAttribute('aria-autocomplete', 'list');
     field.append(input);
 
-    const list = el('div', 'pf-folders');
+    const list = el('div', 'bb-folders');
     list.id = listId;
     list.setAttribute('role', 'listbox');
     list.setAttribute('aria-label', 'Folders');
@@ -213,13 +216,13 @@
     }
 
     function option(text, on, run, extra = '') {
-      const o = el('div', 'pf-item pf-opt' + extra);
+      const o = el('div', 'bb-item bb-opt' + extra);
       o.id = `${listId}-${rows.length}`;
       o.setAttribute('role', 'option');
       o.setAttribute('aria-selected', String(on));
-      o.innerHTML = `<span class="pf-check">${on ? ICON.check : extra ? ICON.plus : ''}</span>`;
-      o.append(el('span', 'pf-label', text));
-      o.__pfRun = run;
+      o.innerHTML = `<span class="bb-check">${on ? ICON.check : extra ? ICON.plus : ''}</span>`;
+      o.append(el('span', 'bb-label', text));
+      o.__bbRun = run;
       rows.push(o);
       return o;
     }
@@ -250,7 +253,7 @@
 
       if (!q) {
         if (!state.folders.length) {
-          list.append(el('div', 'pf-empty', 'No folders yet. Type a name above to make one.'));
+          list.append(el('div', 'bb-empty', 'No folders yet. Type a name above to make one.'));
           return;
         }
         const recent = state.recent.map((id) => state.folders.find((f) => f.id === id)).filter(Boolean);
@@ -265,11 +268,11 @@
         .filter((f) => f.name.toLowerCase().includes(q))
         .sort((a, b) => starts(b) - starts(a) || a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
       list.append(...hits.map(row));
-      if (!hits.some((f) => Store.sameName(f.name, typed))) list.append(option(`Make folder “${typed}”`, false, () => create(typed), ' pf-create'));
+      if (!hits.some((f) => Store.sameName(f.name, typed))) list.append(option(`Make folder “${typed}”`, false, () => create(typed), ' bb-create'));
       setActive(0);
     }
     function cap(text) {
-      const c = el('div', 'pf-cap', text);
+      const c = el('div', 'bb-cap', text);
       c.setAttribute('aria-hidden', 'true');
       return c;
     }
@@ -283,36 +286,36 @@
         if (n) setActive(e.key === 'ArrowDown' ? (active + 1) % n : active <= 0 ? n - 1 : active - 1);
       } else if (e.key === 'Enter') {
         e.preventDefault();
-        rows[active]?.__pfRun();
+        rows[active]?.__bbRun();
       } else if (e.key === 'ArrowLeft' && !input.value) {
         e.preventDefault();
         backToMenu();
       }
     });
     list.addEventListener('mousemove', (e) => {
-      const i = rows.indexOf(e.target.closest('.pf-opt'));
+      const i = rows.indexOf(e.target.closest('.bb-opt'));
       if (i >= 0 && i !== active) setActive(i, false);
     });
     list.addEventListener('click', (e) => {
-      const o = e.target.closest('.pf-opt');
-      if (!o?.__pfRun) return;
+      const o = e.target.closest('.bb-opt');
+      if (!o?.__bbRun) return;
       e.stopPropagation();
-      o.__pfRun();
+      o.__bbRun();
     });
     render();
 
-    box.append(field, list, el('div', 'pf-sep'));
+    box.append(field, list, el('div', 'bb-sep'));
     if (item) {
-      const rm = button('pf-item pf-small pf-danger', 'Remove from Postfold');
+      const rm = button('bb-item bb-small bb-danger', 'Remove from Bowerbird');
       rm.addEventListener('click', async (e) => {
         e.stopPropagation();
         closeMenu(true);
         const removed = await attempt(() => Store.removePost(post.id));
-        if (removed) toast('Removed from Postfold', false, 5000, { label: 'Undo', run: () => attempt(() => Store.restorePost(removed)) });
+        if (removed) toast('Removed from Bowerbird', false, 5000, { label: 'Undo', run: () => attempt(() => Store.restorePost(removed)) });
       });
       box.append(rm);
     }
-    const lib = button('pf-item pf-small pf-muted', 'Open saved posts');
+    const lib = button('bb-item bb-small bb-muted', 'Open saved posts');
     lib.addEventListener('click', (e) => {
       e.stopPropagation();
       closeMenu(true);
@@ -328,7 +331,7 @@
       e.preventDefault();
       stops[(i + (e.shiftKey ? -1 : 1) + stops.length) % stops.length].focus({ preventScroll: true });
     });
-    box.__pfFocus = input; // focused as soon as the panel opens, so you can just type
+    box.__bbFocus = input; // focused as soon as the panel opens, so you can just type
     return box;
   }
 
@@ -336,26 +339,26 @@
   let open = null; // { btn, article, root, rows, sub, subRow }
 
   function menuRow(icon, label, cls = '') {
-    const b = button('pf-item ' + cls);
+    const b = button('bb-item ' + cls);
     b.setAttribute('role', 'menuitem');
-    b.innerHTML = `<span class="pf-ic">${icon}</span>`;
-    b.append(el('span', 'pf-label', label));
+    b.innerHTML = `<span class="bb-ic">${icon}</span>`;
+    b.append(el('span', 'bb-label', label));
     return b;
   }
 
   function buildMenu(article) {
-    const root = el('div', 'pf-menu');
+    const root = el('div', 'bb-menu');
     root.setAttribute('role', 'menu');
-    root.setAttribute('aria-label', 'Postfold');
+    root.setAttribute('aria-label', 'Bowerbird');
 
     // Screenshot: Light / Dim / Dark
-    const shotRow = el('div', 'pf-item pf-row');
+    const shotRow = el('div', 'bb-item bb-row');
     shotRow.setAttribute('role', 'group');
     shotRow.setAttribute('aria-label', 'Screenshot');
-    shotRow.innerHTML = `<span class="pf-ic">${ICON.camera}</span>`;
-    const pills = el('div', 'pf-pills');
+    shotRow.innerHTML = `<span class="bb-ic">${ICON.camera}</span>`;
+    const pills = el('div', 'bb-pills');
     for (const [label, theme] of [['Light', 'light'], ['Dim', 'dim'], ['Dark', 'dark']]) {
-      const p = button('pf-pill', label);
+      const p = button('bb-pill', label);
       p.dataset.swatch = theme;
       p.setAttribute('role', 'menuitem');
       p.setAttribute('aria-label', `Screenshot, ${label}`);
@@ -370,12 +373,12 @@
     shotRow.addEventListener('mouseenter', hideSub);
 
     // Save post: click saves it; hover (or the right arrow key) opens the folder panel.
-    const save = menuRow(ICON.folder, 'Save post', 'pf-has-sub');
+    const save = menuRow(ICON.folder, 'Save post', 'bb-has-sub');
     save.setAttribute('aria-haspopup', 'dialog');
     save.setAttribute('aria-expanded', 'false');
     const hint = savedHint(article);
-    if (hint) save.append(el('span', 'pf-hint', hint));
-    save.insertAdjacentHTML('beforeend', `<span class="pf-chev">${ICON.chevron}</span>`);
+    if (hint) save.append(el('span', 'bb-hint', hint));
+    save.insertAdjacentHTML('beforeend', `<span class="bb-chev">${ICON.chevron}</span>`);
     save.addEventListener('click', (e) => {
       e.stopPropagation();
       closeMenu(true);
@@ -391,7 +394,7 @@
     });
     lib.addEventListener('mouseenter', hideSub);
 
-    root.append(shotRow, save, el('div', 'pf-sep'), lib);
+    root.append(shotRow, save, el('div', 'bb-sep'), lib);
     return { root, pills: [...pills.children], save, lib };
   }
 
@@ -480,7 +483,7 @@
       sub.style.left = Math.max(8, left) + 'px';
       sub.style.top = Math.max(8, Math.min(ir.top - 6, innerHeight - sh - 8)) + 'px';
     }
-    if (!open.sub.contains(document.activeElement)) open.sub.__pfFocus?.focus({ preventScroll: true });
+    if (!open.sub.contains(document.activeElement)) open.sub.__bbFocus?.focus({ preventScroll: true });
   }
 
   function backToMenu() {
@@ -533,14 +536,14 @@
 
   // ---------- the icon in each post ----------
   function makeButton(article) {
-    const slot = el('div', 'pf-slot');
-    const btn = button('pf-btn');
-    btn.title = 'Postfold: screenshot or save';
-    btn.setAttribute('aria-label', 'Postfold: screenshot or save this post');
+    const slot = el('div', 'bb-slot');
+    const btn = button('bb-btn');
+    btn.title = 'Bowerbird: screenshot or save';
+    btn.setAttribute('aria-label', 'Bowerbird: screenshot or save this post');
     btn.setAttribute('aria-haspopup', 'menu');
     btn.setAttribute('aria-expanded', 'false');
-    btn.innerHTML = `<span class="pf-off">${ICON.mark}</span><span class="pf-on">${ICON.markSaved}</span>`;
-    btn.__pfArticle = article;
+    btn.innerHTML = `<span class="bb-off">${ICON.mark}</span><span class="bb-on">${ICON.markSaved}</span>`;
+    btn.__bbArticle = article;
     slot.append(btn);
 
     btn.addEventListener('click', (e) => {
@@ -574,13 +577,13 @@
   }
 
   function markSaved(btn) {
-    const id = btn.__pfArticle && Post.idOf(btn.__pfArticle);
+    const id = btn.__bbArticle && Post.idOf(btn.__bbArticle);
     const saved = !!(id && state.posts[id]);
     btn.classList.toggle('is-saved', saved);
-    btn.setAttribute('aria-label', saved ? 'Postfold: saved. Screenshot or change folders' : 'Postfold: screenshot or save this post');
+    btn.setAttribute('aria-label', saved ? 'Bowerbird: saved. Screenshot or change folders' : 'Bowerbird: screenshot or save this post');
   }
   function refreshButtons() {
-    document.querySelectorAll('.pf-btn').forEach(markSaved);
+    document.querySelectorAll('.bb-btn').forEach(markSaved);
   }
 
   let queued = false;
@@ -591,13 +594,13 @@
       const bar = r.closest('[role="group"]');
       const article = bar?.closest('article');
       if (!article) continue;
-      let slot = bar.querySelector('.pf-slot');
+      let slot = bar.querySelector('.bb-slot');
       const spot = bookmarkSpot(bar);
       if (slot && (!spot || slot.nextElementSibling === spot.ref)) continue; // already in place
       if (!spot) {
         // X sometimes draws Bookmark a moment later. Wait for it; only fall back to the end if it never shows.
-        bar.__pfSeen ||= Date.now();
-        if (Date.now() - bar.__pfSeen < 3000) {
+        bar.__bbSeen ||= Date.now();
+        if (Date.now() - bar.__bbSeen < 3000) {
           setTimeout(queueScan, 600);
           continue;
         }
@@ -613,7 +616,7 @@
   // Match X's icon size, spacing and grey, and check the icon fits in the gap left of Bookmark.
   // Writes, then reads everything, then writes (one layout pass, so scrolling stays smooth).
   function fitSlots(slots) {
-    for (const slot of slots) slot.classList.remove('pf-inflow'); // measure with the icon taking no room
+    for (const slot of slots) slot.classList.remove('bb-inflow'); // measure with the icon taking no room
     const replySvg = document.querySelector(REPLY)?.querySelector('svg');
     const idle = replySvg ? getComputedStyle(replySvg).color : '';
     const looks = slots.map((slot) => {
@@ -630,13 +633,13 @@
       const rowGap = parseFloat(getComputedStyle(slot.parentElement).columnGap) || 0;
       return { size, gap, rowGap, inflow: contentRight(slot.previousElementSibling) > left - 6 };
     });
-    if (idle) document.documentElement.style.setProperty('--pf-idle', idle);
+    if (idle) document.documentElement.style.setProperty('--bb-idle', idle);
     slots.forEach((slot, i) => {
       const { size, gap, rowGap, inflow } = looks[i];
-      if (size) slot.style.setProperty('--pf-size', size + 'px');
-      if (gap != null) slot.style.setProperty('--pf-gap', gap + 'px');
-      if (rowGap != null) slot.style.setProperty('--pf-rowgap', rowGap + 'px');
-      slot.classList.toggle('pf-inflow', inflow);
+      if (size) slot.style.setProperty('--bb-size', size + 'px');
+      if (gap != null) slot.style.setProperty('--bb-gap', gap + 'px');
+      if (rowGap != null) slot.style.setProperty('--bb-rowgap', rowGap + 'px');
+      slot.classList.toggle('bb-inflow', inflow);
       markSaved(slot.firstElementChild);
     });
   }
@@ -645,7 +648,7 @@
   let refit;
   addEventListener('resize', () => {
     clearTimeout(refit);
-    refit = setTimeout(() => fitSlots([...document.querySelectorAll('.pf-slot')]), 250);
+    refit = setTimeout(() => fitSlots([...document.querySelectorAll('.bb-slot')]), 250);
   });
 
   // Where the visible part of an element (its icons and text) ends on the right.

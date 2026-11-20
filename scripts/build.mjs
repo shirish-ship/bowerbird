@@ -1,5 +1,5 @@
-// Builds the Chrome Web Store upload: dist/postfold/ (the unpacked extension) and
-// dist/postfold-<version>.zip, with manifest.json at the root of the zip and no dev files.
+// Builds the Chrome Web Store upload: dist/bowerbird/ (the unpacked extension) and
+// dist/bowerbird-<version>.zip, with manifest.json at the root of the zip and no dev files.
 //   node scripts/build.mjs
 // It also checks the things a reviewer checks: every file the manifest and the page name exists,
 // only the expected permissions are asked for, and there is no remote code, eval or minified code.
@@ -79,7 +79,7 @@ for (const js of SHIP.filter((f) => f.endsWith('.js'))) {
     [/set(?:Timeout|Interval)\s*\(\s*['"`]/, 'a string passed to setTimeout/setInterval'],
     [/importScripts\s*\(\s*['"`]https?:/, 'importScripts from the web'],
     [/\bimport\s*\(\s*['"`]https?:/, 'import() from the web'],
-    [/\bfetch\s*\(/, 'fetch( (Postfold makes no requests)'],
+    [/\bfetch\s*\(/, 'fetch( (Bowerbird makes no requests)'],
     [/XMLHttpRequest|WebSocket|sendBeacon/, 'a network API'],
   ];
   for (const [re, what] of bad) if (re.test(text)) problems.push(`${js} uses ${what}`);
@@ -93,7 +93,7 @@ if (problems.length) {
 }
 
 // ---------- stage ----------
-const out = rel('dist', 'postfold');
+const out = rel('dist', 'bowerbird');
 fs.rmSync(rel('dist'), { recursive: true, force: true });
 for (const f of SHIP) {
   fs.mkdirSync(path.dirname(path.join(out, f)), { recursive: true });
@@ -164,7 +164,7 @@ function zip(files) {
   return Buffer.concat([...parts, cenBuf, end]);
 }
 
-const zipFile = rel('dist', `postfold-${manifest.version}.zip`);
+const zipFile = rel('dist', `bowerbird-${manifest.version}.zip`);
 const buf = zip(SHIP.sort().map((name) => ({ name, data: fs.readFileSync(rel(name)) })));
 fs.writeFileSync(zipFile, buf);
 console.log(`Built ${path.relative(root, zipFile)} (${(buf.length / 1024).toFixed(1)} KB, ${SHIP.length} files)`);

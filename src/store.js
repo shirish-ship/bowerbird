@@ -1,4 +1,4 @@
-// Postfold storage: saved posts, folders and settings.
+// Bowerbird storage: saved posts, folders and settings.
 // Everything lives in chrome.storage.local, on this device only. Nothing is ever sent anywhere.
 //
 //   post:<id>  { id, url, handle, name, text, avatar, media, postedAt, savedAt, folders: [folderId] }
@@ -122,7 +122,7 @@ const Store = (() => {
     try {
       await area.set(patch);
     } catch (e) {
-      if (/quota/i.test(e?.message || '')) throw new Error('Postfold’s storage is full. Remove some saved posts and try again.');
+      if (/quota/i.test(e?.message || '')) throw new Error('Bowerbird’s storage is full. Remove some saved posts and try again.');
       throw e;
     }
   }
@@ -135,7 +135,7 @@ const Store = (() => {
   };
   const bump = (recent, id) => [id, ...recent.filter((r) => r !== id)].slice(0, RECENT_MAX);
 
-  // What Postfold keeps of a post read from the page (see post.js).
+  // What Bowerbird keeps of a post read from the page (see post.js).
   function fromPage(post) {
     const first = (post.media || [])[0];
     return cleanPost({
@@ -294,17 +294,17 @@ const Store = (() => {
   async function exportData() {
     const { posts, folders, settings } = await load();
     const list = Object.values(posts).sort((a, b) => b.savedAt - a.savedAt);
-    return { app: 'postfold', version: 1, exportedAt: new Date().toISOString(), folders, posts: list, settings };
+    return { app: 'bowerbird', version: 1, exportedAt: new Date().toISOString(), folders, posts: list, settings };
   }
 
-  // Merge a Postfold export into what's saved. Folders with the same name are joined, posts already
+  // Merge a Bowerbird export into what's saved. Folders with the same name are joined, posts already
   // saved gain the folders from the file. Also reads files that sort posts with "tags" instead of folders.
   // Returns { added, folders } counts.
   const importData = (data) =>
     serial(async () => {
-      if (!data || typeof data !== 'object') throw new Error('This file is not a Postfold export');
+      if (!data || typeof data !== 'object') throw new Error('This file is not a Bowerbird export');
       const incoming = Array.isArray(data.posts) ? data.posts : data.items && typeof data.items === 'object' ? Object.values(data.items) : null;
-      if (!incoming) throw new Error('This file is not a Postfold export');
+      if (!incoming) throw new Error('This file is not a Bowerbird export');
       if (incoming.length > 50000) throw new Error('This file is too big to import');
 
       const cur = await load();
