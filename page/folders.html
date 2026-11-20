@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Postfold: saved posts</title>
+  <meta name="description" content="The posts you saved with Postfold, sorted into your folders, plus the screenshot settings.">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="../icons/icon32.png">
+  <link rel="stylesheet" href="folders.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+
+  <header class="bar">
+    <div class="container bar__in">
+      <a class="mark" href="#all" aria-label="Postfold, all saved posts">
+        <img src="../icons/icon32.png" width="24" height="24" alt="">
+        <span>Postfold</span>
+      </a>
+      <nav class="tabs" aria-label="Sections">
+        <a href="#all" data-tab="posts" aria-current="page">Saved posts</a>
+        <a href="#settings" data-tab="settings">Settings</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="container main">
+
+    <!-- Saved posts: folders on the left, the posts on the right -->
+    <section id="posts" class="view layout" aria-labelledby="folder-title">
+      <aside class="side" aria-labelledby="folders-h">
+        <h2 id="folders-h" class="side__h">Folders</h2>
+        <ul id="folder-nav" class="folder-nav">
+          <li><a class="folder-link" href="#all"><span class="folder-link__name">All posts</span><span class="count">0</span></a></li>
+        </ul>
+        <form id="new-folder" class="new-folder" novalidate>
+          <label class="visually-hidden" for="new-folder-name">New folder name</label>
+          <input id="new-folder-name" name="new-folder-name" class="input" type="text" maxlength="40" placeholder="New folder" autocomplete="off" spellcheck="false">
+          <button class="btn btn--line" type="submit">Add</button>
+        </form>
+      </aside>
+
+      <div class="col">
+        <div class="col__head">
+          <div class="title-row">
+            <h1 id="folder-title" tabindex="-1">All posts</h1>
+            <span id="folder-count" class="count count--big"></span>
+          </div>
+          <div id="folder-tools" class="folder-tools" hidden>
+            <button id="rename" class="btn btn--line btn--small" type="button">Rename</button>
+            <button id="delete" class="btn btn--quiet btn--small" type="button">Delete folder</button>
+          </div>
+          <div class="search">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>
+            <label class="visually-hidden" for="q">Search saved posts</label>
+            <input id="q" name="q" class="input" type="search" placeholder="Search text, names, @handles" autocomplete="off" spellcheck="false">
+            <kbd aria-hidden="true">/</kbd>
+          </div>
+        </div>
+
+        <ol id="list" class="drawer" aria-busy="true" aria-label="Saved posts">
+          <li class="row is-skeleton" aria-hidden="true"><span class="row__pic"></span><span class="sk"><i></i><i></i><i></i></span></li>
+          <li class="row is-skeleton" aria-hidden="true"><span class="row__pic"></span><span class="sk"><i></i><i></i><i></i></span></li>
+          <li class="row is-skeleton" aria-hidden="true"><span class="row__pic"></span><span class="sk"><i></i><i></i><i></i></span></li>
+        </ol>
+        <div id="more-wrap" class="more" hidden><button id="more" class="btn btn--line" type="button">Show more</button></div>
+        <div id="empty" class="empty" hidden></div>
+        <noscript><p class="empty">Postfold’s page needs JavaScript to show your saved posts.</p></noscript>
+      </div>
+    </section>
+
+    <!-- Settings -->
+    <section id="settings" class="view settings" aria-labelledby="settings-h" hidden>
+      <h1 id="settings-h" tabindex="-1">Settings</h1>
+
+      <div class="settings__grid">
+        <section class="card" aria-labelledby="shots-h">
+          <h2 id="shots-h">Screenshots</h2>
+          <p class="help">What happens when you pick Light, Dim or Dark under a post.</p>
+          <div class="checks">
+            <label class="check"><input id="set-copy" name="set-copy" type="checkbox"> Copy to the clipboard</label>
+            <label class="check"><input id="set-download" name="set-download" type="checkbox"> Save a PNG to your Downloads folder</label>
+            <label class="check"><input id="set-stats" name="set-stats" type="checkbox"> Show likes, reposts and views</label>
+            <label class="check"><input id="set-frame" name="set-frame" type="checkbox"> Add padding and a soft background</label>
+          </div>
+        </section>
+
+        <section class="sheet" aria-labelledby="data-h">
+          <h2 id="data-h">Your saved posts</h2>
+          <p class="body-text">They stay in this browser on this computer. Postfold sends nothing anywhere. Export a file to keep a copy, or to move your folders to another computer.</p>
+          <dl class="usage">
+            <dt>Saved posts</dt><dd id="use-posts" class="num">0</dd>
+            <dt>Folders</dt><dd id="use-folders" class="num">0</dd>
+            <dt>Space used</dt><dd id="use-bytes" class="num">0 KB</dd>
+          </dl>
+          <div class="actions">
+            <button id="export" class="btn btn--ink" type="button">Export</button>
+            <button id="import" class="btn btn--line" type="button">Import</button>
+            <input id="import-file" name="import-file" type="file" accept="application/json,.json" hidden>
+          </div>
+          <p id="data-status" class="status" role="status"></p>
+        </section>
+
+        <section class="sheet" aria-labelledby="about-h">
+          <h2 id="about-h">About</h2>
+          <p class="body-text">On x.com, click the Postfold icon next to Bookmark under any post. Pick Light, Dim or Dark for a screenshot, or Save post to file it in a folder.</p>
+          <p class="body-text">Postfold is an independent tool. It is not made by, endorsed by or affiliated with X Corp.</p>
+          <p class="body-text"><a href="https://shirish-ship.github.io/postfold/privacy.html" target="_blank" rel="noopener">Privacy policy</a> <span class="muted">Version <span id="version"></span></span></p>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="../src/store.js"></script>
+  <script src="folders.js"></script>
+</body>
+</html>

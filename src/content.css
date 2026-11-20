@@ -1,0 +1,381 @@
+/* Postfold on x.com. Made to look like X's own menus. Every class starts with pf- so it never clashes with X. */
+
+/* ---------- the icon in each post's action bar ---------- */
+/* The icon takes up no room in X's row: a negative left margin cancels its width, so X's buttons
+   stay exactly where X puts them and the icon sits in the empty space just left of Bookmark. */
+.pf-slot {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  margin-left: calc(-1 * (var(--pf-size, 18.75px) + var(--pf-gap, 12px)));
+  /* X's row also puts its own small gap between items; together they make the same gap X uses. */
+  margin-right: calc(var(--pf-gap, 12px) - var(--pf-rowgap, 0px));
+}
+/* Not enough empty space there (narrow window, long counts): take real room instead of covering a number. */
+.pf-slot.pf-inflow {
+  margin-left: 0;
+}
+/* Two classes deep, so a site rule like "nav button { all: unset }" can never resize the icon. */
+.pf-slot > .pf-btn {
+  all: unset;
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--pf-size, 18.75px);
+  height: var(--pf-size, 18.75px);
+  color: var(--pf-idle, rgb(113, 118, 123));
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.pf-btn::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+  border-radius: 9999px;
+  transition: background-color 0.2s;
+}
+.pf-btn:hover,
+.pf-btn:focus-visible,
+.pf-btn.is-open,
+.pf-btn.is-saved {
+  color: rgb(29, 155, 240);
+}
+.pf-btn:hover::before,
+.pf-btn:focus-visible::before,
+.pf-btn.is-open::before {
+  background-color: rgba(29, 155, 240, 0.1);
+}
+.pf-btn:focus-visible::before {
+  box-shadow: 0 0 0 2px rgb(29, 155, 240);
+}
+.pf-btn > span {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+.pf-slot > .pf-btn svg {
+  width: 100%;
+  height: 100%;
+}
+.pf-btn .pf-on,
+.pf-btn.is-saved .pf-off {
+  display: none;
+}
+.pf-btn.is-saved .pf-on {
+  display: flex;
+}
+
+/* ---------- menu ---------- */
+.pf-menu {
+  --bg: #fff;
+  --fg: #0f1419;
+  --sub: #536471;
+  --hover: rgba(15, 20, 25, 0.05);
+  --line: #eff3f4;
+  --edge: rgba(15, 20, 25, 0.16);
+  --accent: rgb(29, 155, 240);
+  --shadow: rgba(101, 119, 134, 0.2) 0 0 15px, rgba(101, 119, 134, 0.15) 0 0 3px 1px;
+  position: fixed;
+  z-index: 2147483000;
+  box-sizing: border-box;
+  min-width: 248px;
+  max-width: 320px;
+  padding: 6px 0;
+  border-radius: 12px;
+  background: var(--bg);
+  color: var(--fg);
+  box-shadow: var(--shadow);
+  font: 700 15px/20px TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  text-align: left;
+  animation: pf-in 0.12s ease-out;
+}
+.pf-menu[data-theme="dark"] {
+  --bg: #000;
+  --fg: #e7e9ea;
+  --sub: #71767b;
+  --hover: rgba(231, 233, 234, 0.07);
+  --line: #2f3336;
+  --edge: rgba(255, 255, 255, 0.22);
+  --shadow: rgba(255, 255, 255, 0.2) 0 0 15px, rgba(255, 255, 255, 0.15) 0 0 3px 1px;
+}
+.pf-menu[data-theme="dim"] {
+  --bg: #15202b;
+  --fg: #f7f9f9;
+  --sub: #8b98a5;
+  --hover: rgba(247, 249, 249, 0.07);
+  --line: #38444d;
+  --edge: rgba(255, 255, 255, 0.2);
+  --shadow: rgba(136, 153, 166, 0.2) 0 0 15px, rgba(136, 153, 166, 0.15) 0 0 3px 1px;
+}
+@keyframes pf-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+}
+.pf-sub {
+  width: 280px;
+  padding-top: 8px;
+  animation: none;
+}
+
+.pf-item {
+  all: unset;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 11px 16px;
+  color: var(--fg);
+  cursor: pointer;
+}
+.pf-item:hover,
+.pf-item.is-active {
+  background: var(--hover);
+}
+.pf-item:focus-visible {
+  background: var(--hover);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.pf-ic {
+  display: flex;
+  flex: none;
+  width: 18.75px;
+  height: 18.75px;
+}
+.pf-ic svg,
+.pf-chev svg,
+.pf-check svg {
+  width: 100%;
+  height: 100%;
+}
+.pf-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pf-hint {
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 400;
+}
+.pf-chev {
+  display: flex;
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin-right: -4px;
+  color: var(--sub);
+}
+.pf-sep {
+  height: 1px;
+  margin: 6px 0;
+  background: var(--line);
+}
+
+/* folder list */
+.pf-folders {
+  position: relative;
+  max-height: 280px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+.pf-check {
+  display: flex;
+  flex: none;
+  width: 18px;
+  height: 18px;
+  color: var(--accent);
+}
+.pf-opt[aria-selected="true"] .pf-label {
+  color: var(--accent);
+}
+.pf-empty {
+  padding: 10px 16px;
+  color: var(--sub);
+  font-weight: 400;
+}
+.pf-cap {
+  padding: 10px 16px 4px;
+  color: var(--sub);
+  font-size: 13px;
+  line-height: 16px;
+}
+.pf-create .pf-check {
+  color: var(--sub);
+}
+.pf-create .pf-label {
+  font-weight: 400;
+}
+
+/* search box */
+.pf-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 2px 10px 6px;
+  padding: 0 12px;
+  border-radius: 9999px;
+  background: var(--hover);
+  color: var(--sub);
+  box-shadow: inset 0 0 0 1px transparent;
+  cursor: text;
+}
+.pf-field:focus-within {
+  background: transparent;
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.pf-field .pf-ic {
+  width: 16px;
+  height: 16px;
+}
+.pf-field:focus-within .pf-ic {
+  color: var(--accent);
+}
+.pf-field input {
+  all: unset;
+  flex: 1;
+  min-width: 0;
+  padding: 8px 0;
+  color: var(--fg);
+  font: 400 15px/20px TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+.pf-field input::placeholder {
+  color: var(--sub);
+  opacity: 1;
+}
+
+/* Light / Dim / Dark */
+.pf-row {
+  cursor: default;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.pf-row:hover {
+  background: none;
+}
+.pf-pills {
+  display: flex;
+  flex: 1;
+  gap: 6px;
+}
+.pf-pill {
+  all: unset;
+  box-sizing: border-box;
+  flex: 1;
+  padding: 6px 10px;
+  border-radius: 9999px;
+  font-size: 14px;
+  line-height: 18px;
+  text-align: center;
+  cursor: pointer;
+  box-shadow: inset 0 0 0 1px var(--edge);
+  transition: box-shadow 0.15s;
+}
+.pf-pill[data-swatch="light"] {
+  background: #fff;
+  color: #0f1419;
+}
+.pf-pill[data-swatch="dim"] {
+  background: #15202b;
+  color: #f7f9f9;
+}
+.pf-pill[data-swatch="dark"] {
+  background: #000;
+  color: #e7e9ea;
+}
+.pf-pill:hover,
+.pf-pill:focus-visible {
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+.pf-pill:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.pf-small {
+  padding-top: 9px;
+  padding-bottom: 9px;
+  font-size: 14px;
+  font-weight: 400;
+}
+.pf-muted {
+  color: var(--sub);
+}
+.pf-danger {
+  color: rgb(244, 33, 46);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pf-menu {
+    animation: none;
+  }
+  .pf-toast {
+    transition: none;
+  }
+}
+
+/* ---------- toast ---------- */
+.pf-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 24px;
+  z-index: 2147483001;
+  max-width: calc(100vw - 32px);
+  box-sizing: border-box;
+  padding: 12px 16px;
+  border-radius: 6px;
+  background: rgb(29, 155, 240);
+  color: #fff;
+  font: 400 15px/20px TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  box-shadow: rgba(0, 0, 0, 0.25) 0 4px 14px;
+  opacity: 0;
+  transform: translate(-50%, 12px);
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+.pf-toast.is-on {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+.pf-toast.is-error {
+  background: rgb(244, 33, 46);
+}
+/* A toast with a button in it, like "Undo". */
+.pf-toast:has(.pf-toast-btn) {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+}
+.pf-toast.is-on:has(.pf-toast-btn) {
+  pointer-events: auto;
+}
+.pf-toast-btn {
+  min-height: 32px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 9999px;
+  background: #fff;
+  color: rgb(15, 20, 25);
+  font: 700 14px/20px TwitterChirp, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  cursor: pointer;
+}
+.pf-toast-btn:hover {
+  background: rgb(230, 236, 240);
+}
+.pf-toast-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}

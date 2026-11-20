@@ -1,0 +1,17 @@
+{
+  "name": "postfold",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Chrome extension: clean screenshots of posts on x.com, and folders to save posts in. All data stays on the device.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node scripts/build.mjs && node tests/e2e.mjs",
+    "icons": "node scripts/make-icons.mjs",
+    "store-images": "node scripts/store-images.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}

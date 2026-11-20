@@ -1,0 +1,38 @@
+{
+  "manifest_version": 3,
+  "name": "Postfold: Screenshots and Folders for Posts",
+  "short_name": "Postfold",
+  "version": "1.0.0",
+  "description": "Make clean screenshots of posts on x.com and save posts into your own folders. Everything stays on your device.",
+  "minimum_chrome_version": "110",
+  "permissions": ["storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Open Postfold",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png"
+    }
+  },
+  "options_page": "page/folders.html",
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://x.com/*", "https://twitter.com/*"],
+      "js": ["src/store.js", "src/post.js", "src/shot.js", "src/content.js"],
+      "css": ["src/content.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "content_security_policy": {
+    "extension_pages": "default-src 'self'; script-src 'self'; style-src 'self'; font-src 'self'; img-src 'self' https://pbs.twimg.com; connect-src 'none'; object-src 'none'; base-uri 'none'; form-action 'none'"
+  }
+}
