@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Postfold privacy policy</title>
+  <meta name="description" content="Postfold keeps your saved posts and screenshots on your own device. No server, no account, no tracking.">
+  <link rel="icon" href="favicon.png">
+  <link rel="stylesheet" href="site.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to the policy</a>
+  <header class="bar">
+    <div class="container">
+      <a class="mark" href="./"><img src="mark.svg" alt="" width="24" height="24">Postfold</a>
+      <nav class="links" aria-label="Site">
+        <a href="./">Home</a>
+        <a href="privacy.html" aria-current="page">Privacy</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main" class="container">
+    <h1>Postfold privacy policy</h1>
+    <p class="meta">Last updated 20 November 2026</p>
+    <p class="intro">Postfold is a browser extension for x.com. It makes screenshots of posts and saves posts into folders. Everything it keeps stays in your browser, on your computer.</p>
+
+    <dl class="answers" aria-label="The short version">
+      <div><dt>Does Postfold have a server?</dt><dd>No. There is nothing to sign in to and nowhere for your data to go.</dd></div>
+      <div><dt>Does it track me?</dt><dd>No. No analytics, no ads, no tracking of any kind.</dd></div>
+      <div><dt>Can the developer see what I save?</dt><dd>No. Your saved posts never leave your browser.</dd></div>
+      <div><dt>How do I delete everything?</dt><dd>Remove the extension. Your browser deletes all of Postfold’s data with it.</dd></div>
+    </dl>
+
+    <div class="policy">
+      <section aria-labelledby="stores">
+        <h2 id="stores">What Postfold keeps</h2>
+        <div class="text">
+          <p>Only what you choose to save, in your browser’s extension storage (<code>chrome.storage.local</code>) on this computer. It is not synced to your Google account.</p>
+          <ul>
+            <li>For each post you save: its link, the author’s name and @handle, the post’s text, links to the author’s picture and the post’s first picture, the date it was posted, the date you saved it, and the folders it is in.</li>
+            <li>The names of the folders you make, and the last few folders you used.</li>
+            <li>Your screenshot settings.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section aria-labelledby="reads">
+        <h2 id="reads">What Postfold reads</h2>
+        <div class="text">
+          <p>Postfold runs only on x.com and twitter.com. It adds its button under each post. It reads a post’s visible details (name, @handle, text, pictures, quoted post, date and counts) only when you click that button, and only to draw the screenshot or save the post.</p>
+          <p>It does not read your messages, your account details, your browsing on other sites or anything you type.</p>
+        </div>
+      </section>
+
+      <section aria-labelledby="shots">
+        <h2 id="shots">Screenshots</h2>
+        <div class="text">
+          <p>Screenshots are drawn on your computer. Postfold copies the image to your clipboard and saves it to your Downloads folder, as you choose in Settings. It keeps no copy.</p>
+        </div>
+      </section>
+
+      <section aria-labelledby="network">
+        <h2 id="network">The network</h2>
+        <div class="text">
+          <p>Postfold sends your data nowhere. It makes no requests to any server of its own and loads no code from the internet.</p>
+          <p>Two things use pictures from X’s image server (pbs.twimg.com), the same pictures x.com shows you:</p>
+          <ul>
+            <li>A screenshot uses the pictures x.com has already loaded on the page.</li>
+            <li>Postfold’s own page shows the author pictures and post pictures of your saved posts by loading them from X’s image server. These requests carry no Postfold data and no referrer, but like any web request they show X your IP address.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section aria-labelledby="share">
+        <h2 id="share">Sharing</h2>
+        <div class="text">
+          <p>Postfold does not sell, share or transfer your data to anyone. It does not use your data for advertising, for credit or lending decisions, or for anything other than its two features. Its use of data follows the Chrome Web Store User Data Policy, including the Limited Use requirements.</p>
+        </div>
+      </section>
+
+      <section aria-labelledby="control">
+        <h2 id="control">Your choices</h2>
+        <div class="text">
+          <ul>
+            <li>Remove any saved post or delete any folder on Postfold’s page.</li>
+            <li>Export everything to a file, and import it again, from Settings.</li>
+            <li>Remove the extension to delete all of its data from your browser.</li>
+          </ul>
+        </div>
+      </section>
+
+      <section aria-labelledby="changes">
+        <h2 id="changes">Changes and contact</h2>
+        <div class="text">
+          <p>If this policy changes, the new version will be posted on this page with a new date.</p>
+          <p>Questions: open an issue at <a href="https://github.com/shirish-ship/postfold/issues">github.com/shirish-ship/postfold</a>.</p>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="foot">
+    <div class="container">Postfold is an independent tool. It is not made by, endorsed by or affiliated with X Corp.</div>
+  </footer>
+</body>
+</html>
